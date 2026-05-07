@@ -1,0 +1,47 @@
+import { ctx } from "../world/space/canvas.js";
+
+export function drawVertices(vertices, color = "blue",) {
+    ctx.save();
+    ctx.beginPath()
+    ctx.lineWidth = 2;
+    ctx.fillStyle = color;
+    // ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.5;
+    ctx.moveTo(vertices[0].x, vertices[0].y);
+
+    vertices.forEach((vertex, i) => {
+        if (i) {
+            ctx.lineTo(vertex.x, vertex.y);
+        }
+    });
+
+    ctx.lineTo(vertices[0].x, vertices[0].y);
+    ctx.fill();
+    // ctx.stroke();
+    ctx.restore();
+}
+
+export function tranformVertices(vertices, cx, cy, scaleX, scaleY, rotation) {
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
+
+    const hw = scaleX/2;
+    const hh = scaleY/2
+
+    const result = [];
+
+    for (const p of vertices) {
+        const sx = p.x * hw;
+        const sy = p.y * hh;
+
+        const rx = sx * cos - sy * sin;
+        const ry = sx * sin + sy * cos;
+
+        result.push({
+            x: cx + rx,
+            y: cy + ry
+        });
+    }
+
+    return result;
+}
