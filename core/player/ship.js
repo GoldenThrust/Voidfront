@@ -109,7 +109,7 @@ export default class Ship {
             this.lastTime = dt;
         }
 
-        this.speed = 20;
+        this.speed = 2;
 
         // updateWrapped(() => {
         this.x = wrap(this.x - Math.sin(this.angle) * this.speed, world.width);
@@ -160,6 +160,6 @@ export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 20, height: 20, 
 
 export const ships = [];
 
-for (let i = 0; i < 500; i++) {
+for (let i = 0; i < 50; i++) {
     ships.push(new Ship({ x: randomNum(-canvas.width, world.width), y: randomNum(0, world.height), angle: 0, width: 20, height: 20 }));
 }

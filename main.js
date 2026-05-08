@@ -2,6 +2,7 @@ import { ship, ships } from "./core/player/ship.js";
 import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
 import { ctx } from "./core/world/space/canvas.js";
+import { minimap } from "./core/world/minimap.js";
 
 async function init() {
     requestAnimationFrame(animate);
@@ -26,6 +27,8 @@ function animate(t) {
         ship.update(t);
     }
 
+    minimap.render();
+
 
     requestAnimationFrame(animate);
 }
@@ -41,13 +44,5 @@ addEventListener("keydown", ({ key }) => {
     }
     if (key == 'ArrowDown') {
         attachWorld = Math.max(-1, attachWorld - 1)
-    }
-    if (key == 'ArrowRight') {
-        // world.updateState({ dAngle: 0.5 })
-        world.updateState({ dx: 10 })
-    }
-    if (key == 'ArrowLeft') {
-        world.updateState({ dx: -10 })
-        // world.updateState({ dAngle: -0.5 })
     }
 });
