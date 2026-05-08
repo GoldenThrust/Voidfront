@@ -1,7 +1,7 @@
 import { randomNum } from "../../utils/random.js";
 import { world } from "../world.js";
 import { ctx } from "../space/canvas.js";
-import { drawWrapped } from "../utils.js";
+import { drawWrapped, wrap } from "../utils.js";
 
 class Star {
     constructor({
@@ -13,11 +13,12 @@ class Star {
         this.bright = bright;
         this.twinkle = twinkle;
         this.speed = speed;
+        this.path2D = new Path2D();
     }
 
     render() {
-        this.twinkle += this.speed;
-        const alpha = this.bright * (0.7 + 0.3 * Math.sin(this.twinkle));
+        this.twinkle = wrap(this.twinkle + this.speed, Math.PI * 2);
+        const alpha = this.bright * (Math.sin(this.twinkle));
 
         drawWrapped({
             fn: () => {
@@ -32,7 +33,7 @@ class Star {
 
 export const stars = [];
 
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 10000; i++) {
     stars.push(new Star({
         x: randomNum(0, world.width),
         y: randomNum(0, world.height),

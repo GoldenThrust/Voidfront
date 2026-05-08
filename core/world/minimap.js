@@ -7,12 +7,12 @@ import { clamp } from "../utils/math.js";
 export default class Minimap {
     constructor(width, height, scale) {
         this.canvas = document.createElement("canvas");
+        this.canvas.id = "minimap";
         this.canvas.width = width;
         this.canvas.height = height;
 
-        
-        // this.sx = this.canvas.width / this.world.width;
-        // this.sy = this.canvas.height / this.world.height;
+        this.canvas.style.width =`${width}px`;
+        this.canvas.style.height = `${height}px`;
     
         const minScale = Math.max(canvas.width / world.width, canvas.height / world.height);
 
@@ -24,18 +24,11 @@ export default class Minimap {
             width: width / scale,
             height: height / scale
         }
+    
         this.sx = this.world.width / world.width;
         this.sy = this.world.height / world.height;
         
         this.ctx = this.canvas.getContext("2d");
-
-        this.styleMap = this.canvas.attributeStyleMap;
-        this.styleMap.set("width", `${width}px`);
-        this.styleMap.set("height", `${height}px`);
-        this.styleMap.set("bottom", "20px");
-        this.styleMap.set("right", "20px");
-        this.styleMap.set("border-radius", "30px");
-        this.styleMap.set("border", "3px solid rgba(100, 160, 220, 0.3)");
 
         document.documentElement.appendChild(this.canvas);
     }

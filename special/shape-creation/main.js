@@ -205,7 +205,7 @@ const button = document.querySelector("button");
 button.addEventListener("click", () => {
     const nPoints = normalizePoints(vertices);
     let worldPoints = [...nPoints];
-    navigator.clipboard.writeText([worldPoints.map((point) => `{x: ${point.x}, y: ${point.y}}`)]);
+    navigator.clipboard.writeText(`[${worldPoints.map((point) => `{x: ${point.x}, y: ${point.y}}`)}]`);
     // console.log(worldPoints)
 })
 

@@ -34,6 +34,6 @@ export default class World {
 export const world = new World({
     x: 0,
     y: 0,
-    width: canvas.width * 5,
-    height: canvas.height * 5,
+    width: canvas.width * 20,
+    height: canvas.height * 20,
 })

@@ -3,6 +3,7 @@ import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
 import { ctx } from "./core/world/space/canvas.js";
 import { minimap } from "./core/world/minimap.js";
+import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 
 async function init() {
     requestAnimationFrame(animate);
@@ -17,6 +18,10 @@ function animate(t) {
 
     for (const star of stars) {
         star.render();
+    }
+
+    for (const asteroid of asteroids) {
+        asteroid.render();
     }
 
     ship.render();

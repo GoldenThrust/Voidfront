@@ -1,5 +1,5 @@
 import { canvas, canvasHeight, canvasWidth, ctx } from "../world/space/canvas.js";
-import { drawVertices, tranformVertices } from "../utils/vertices.js";
+import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } from "../utils/vertices.js";
 import { drawWrapped, inScreen, updateWrapped, worldToScreen, wrap } from "../world/utils.js";
 import { world } from "../world/world.js";
 import { randomNum } from "../utils/random.js";
@@ -17,13 +17,13 @@ export default class Ship {
         this.angle = angle;
         this.color = color;
 
-        this.maxSpeed = 5;
+        this.maxSpeed = 50;
 
         this.lastTime = 0;
         this.trail = new Trail(this.maxSpeed, "white");
 
 
-        this.points = tranformVertices([
+        this.vertices = tranformVertices([
             {
                 "x": 0.23006134969325154,
                 "y": -1
@@ -89,16 +89,20 @@ export default class Ship {
                 "y": -0.3803680981595092
             }
         ], 0, 0, this.width, this.height, 0);
+
+        this.path2D = createVerticesPath(this.vertices)
     }
 
     render() {
         ctx.translate(world.width / 2, world.height / 2);
         this.trail.render();
         ctx.translate(-world.width / 2, -world.height / 2);
-        drawWrapped({fn: (wx, wy) => {
-            ctx.rotate(-this.angle);
-            drawVertices(this.points, this.color);
-        }, x: this.x, y: this.y})
+        drawWrapped({
+            fn: (wx, wy) => {
+                ctx.rotate(-this.angle);
+                drawVerticesPath(this.path2D, this.color);
+            }, x: this.x, y: this.y
+        })
     }
 
     update(dt) {
@@ -109,7 +113,7 @@ export default class Ship {
             this.lastTime = dt;
         }
 
-        this.speed = 2;
+        this.speed = 5;
 
         // updateWrapped(() => {
         this.x = wrap(this.x - Math.sin(this.angle) * this.speed, world.width);
@@ -123,43 +127,13 @@ export default class Ship {
         //     width: 100,
         //     height: 100
         // })
-
-    }
-
-
-    getVertices() {
-        const dist = Math.hypot(this.width, this.height) / 2;
-        const alpha = Math.atan2(this.width, this.height);
-
-        const vertices = [
-            {
-                x: this.x - Math.sin(this.angle - alpha) * dist,
-                y: this.y - Math.cos(this.angle - alpha) * dist
-            }, // Top-left
-            {
-                x: this.x - Math.sin(this.angle + alpha) * dist,
-                y: this.y - Math.cos(this.angle + alpha) * dist
-            },  // Top-right
-            {
-                x: this.x - Math.sin(Math.PI + this.angle - alpha) * dist,
-                y: this.y - Math.cos(Math.PI + this.angle - alpha) * dist
-            },   // Bottom-left
-            {
-                x: this.x - Math.sin(Math.PI + this.angle + alpha) * dist,
-                y: this.y - Math.cos(Math.PI + this.angle + alpha) * dist
-            },  // Bottom-right
-        ];
-
-        this.points
-
-        return vertices;
     }
 }
 
-export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 20, height: 20, color: "blue" });
+export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue" });
 
 export const ships = [];
 
 for (let i = 0; i < 50; i++) {
-    ships.push(new Ship({ x: randomNum(-canvas.width, world.width), y: randomNum(0, world.height), angle: 0, width: 20, height: 20 }));
+    ships.push(new Ship({ x: randomNum(-canvas.width, world.width), y: randomNum(0, world.height), angle: 0, width: 40, height: 40 }));
 }
