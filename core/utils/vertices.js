@@ -45,3 +45,32 @@ export function tranformVertices(vertices, cx, cy, scaleX, scaleY, rotation) {
 
     return result;
 }
+
+
+export function createVerticesPath(vertices) {
+    const verticesPath = new Path2D();
+
+    verticesPath.moveTo(vertices[0].x, vertices[0].y);
+
+    vertices.forEach((vertex, i) => {
+        if (i) {
+            verticesPath.lineTo(vertex.x, vertex.y);
+        }
+    });
+
+    verticesPath.lineTo(vertices[0].x, vertices[0].y);
+
+    return verticesPath;
+}
+
+export function drawVerticesPath(path, color = "blue",) {
+    ctx.save();
+    ctx.beginPath()
+    ctx.lineWidth = 2;
+    ctx.fillStyle = color;
+    // ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.5;
+
+    ctx.fill(path)
+    ctx.restore();
+}

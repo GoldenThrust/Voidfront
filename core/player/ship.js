@@ -1,11 +1,11 @@
 import { canvas, canvasHeight, canvasWidth, ctx } from "../world/space/canvas.js";
 import { drawVertices, tranformVertices } from "../utils/vertices.js";
 import { drawWrapped, inScreen, updateWrapped, worldToScreen, wrap } from "../world/utils.js";
-import { camera } from "../world/camera.js";
+import { world } from "../world/world.js";
 import { randomNum } from "../utils/random.js";
 import Trail from "./object/trail.js";
 
-const WORLD_MARGIN = camera.width / 200;
+const WORLD_MARGIN = world.width / 200;
 export default class Ship {
     constructor({ x, y, width, height, angle, color = "red" }) {
         console.log(color);
@@ -17,8 +17,11 @@ export default class Ship {
         this.angle = angle;
         this.color = color;
 
+        this.maxSpeed = 5;
+
         this.lastTime = 0;
-        this.trail = new Trail(20, "white");
+        this.trail = new Trail(this.maxSpeed, "white");
+
 
         this.points = tranformVertices([
             {
@@ -89,13 +92,13 @@ export default class Ship {
     }
 
     render() {
-        ctx.translate(camera.width / 2, camera.height / 2);
+        ctx.translate(world.width / 2, world.height / 2);
         this.trail.render();
-        ctx.translate(-camera.width / 2, -camera.height / 2);
-        drawWrapped((wx, wy) => {
+        ctx.translate(-world.width / 2, -world.height / 2);
+        drawWrapped({fn: (wx, wy) => {
             ctx.rotate(-this.angle);
             drawVertices(this.points, this.color);
-        }, this.x, this.y)
+        }, x: this.x, y: this.y})
     }
 
     update(dt) {
@@ -109,8 +112,8 @@ export default class Ship {
         this.speed = 20;
 
         // updateWrapped(() => {
-        this.x = wrap(this.x - Math.sin(this.angle) * this.speed, camera.width);
-        this.y = wrap(this.y - Math.cos(this.angle) * this.speed, camera.height);
+        this.x = wrap(this.x - Math.sin(this.angle) * this.speed, world.width);
+        this.y = wrap(this.y - Math.cos(this.angle) * this.speed, world.height);
 
 
         this.trail.update(this.x, this.y, this.speed);
@@ -158,5 +161,5 @@ export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 20, height: 20, 
 export const ships = [];
 
 for (let i = 0; i < 500; i++) {
-    ships.push(new Ship({ x: randomNum(-canvas.width, camera.width), y: randomNum(0, camera.height), angle: 0, width: 20, height: 20 }));
+    ships.push(new Ship({ x: randomNum(-canvas.width, world.width), y: randomNum(0, world.height), angle: 0, width: 20, height: 20 }));
 }

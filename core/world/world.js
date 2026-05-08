@@ -2,7 +2,7 @@ import { canvas, canvasHeight, canvasWidth, ctx, dpr, resizeCanvas } from "./spa
 import { clamp } from "../utils/math.js";
 import { toroidalDelta, wrap } from "./utils.js";
 
-export default class Camera {
+export default class World {
     constructor({ x, y, width, height, angle, scale }) {
         this.x = x;
         this.y = y;
@@ -19,7 +19,7 @@ export default class Camera {
         ctx.restore();
         ctx.save()
 
-        ctx.translate(canvas.width / 2 - this.width / 2, canvas.height / 2 - this.height / 2);
+        ctx.translate((canvas.width - this.width) / 2, (canvas.height - this.height) / 2);
         // ctx.scale(this.scale, this.scale);
         // ctx.rotate(this.angle);
         // ctx.scale(this.scale, this.scale);
@@ -56,7 +56,7 @@ export default class Camera {
 }
 
 
-export const camera = new Camera({
+export const world = new World({
     x: 150,
     y: 150,
     width: canvas.width * 20,

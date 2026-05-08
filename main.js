@@ -1,5 +1,5 @@
 import { ship, ships } from "./core/player/ship.js";
-import { camera } from "./core/world/camera.js";
+import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
 import { ctx } from "./core/world/space/canvas.js";
 
@@ -7,9 +7,12 @@ async function init() {
     requestAnimationFrame(animate);
 }
 
+let attachWorld = -1;
+
 function animate(t) {
-    camera.render();
-    camera.attach(ship);
+    world.render();
+
+    world.attach(attachWorld < 0 ? ship : ships[Math.min(attachWorld, ships.length - 1)]);
 
     for (const star of stars) {
         star.render();
@@ -31,20 +34,20 @@ function animate(t) {
 await init();
 // })
 
-addEventListener("keydown", (e) => {
-    // console.table(camera);
-    if (e.key == 'ArrowUp') {
-        camera.updateState({ dy: 10 })
+
+addEventListener("keydown", ({ key }) => {
+    if (key == 'ArrowUp') {
+        attachWorld = Math.min(attachWorld + 1, ships.length - 1)
     }
-    if (e.key == 'ArrowDown') {
-        camera.updateState({ dy: -10 })
+    if (key == 'ArrowDown') {
+        attachWorld = Math.max(-1, attachWorld - 1)
     }
-    if (e.key == 'ArrowRight') {
-        // camera.updateState({ dAngle: 0.5 })
-        camera.updateState({ dx: 10 })
+    if (key == 'ArrowRight') {
+        // world.updateState({ dAngle: 0.5 })
+        world.updateState({ dx: 10 })
     }
-    if (e.key == 'ArrowLeft') {
-        camera.updateState({ dx: -10 })
-        // camera.updateState({ dAngle: -0.5 })
+    if (key == 'ArrowLeft') {
+        world.updateState({ dx: -10 })
+        // world.updateState({ dAngle: -0.5 })
     }
 });

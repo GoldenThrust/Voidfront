@@ -1,4 +1,4 @@
-import { camera } from "../../world/camera.js";
+import { world } from "../../world/world.js";
 import { ctx } from "../../world/space/canvas.js";
 import { toroidalDelta } from "../../world/utils.js";
 
@@ -23,10 +23,10 @@ export default class Trail {
             const a = this.trails[i - 1], b = this.trails[i];
             const avgSpeed = (a.speed + b.speed) / 2;
 
-            const adx = toroidalDelta(camera.x, a.x, camera.width);
-            const ady = toroidalDelta(camera.y, a.y, camera.height);
-            const bdx = toroidalDelta(camera.x, b.x, camera.width);
-            const bdy = toroidalDelta(camera.y, b.y, camera.height);
+            const adx = toroidalDelta(world.x, a.x, world.width);
+            const ady = toroidalDelta(world.y, a.y, world.height);
+            const bdx = toroidalDelta(world.x, b.x, world.width);
+            const bdy = toroidalDelta(world.y, b.y, world.height);
 
             const t = i / this.trails.length;
 
@@ -36,8 +36,8 @@ export default class Trail {
             ctx.lineTo(bdx, bdy);
             ctx.strokeStyle = this.color;
 
-            ctx.globalAlpha = t * 0.3;
-            ctx.lineWidth = t * 5;
+            ctx.globalAlpha = t * 0.1;
+            ctx.lineWidth = t * 2;
             ctx.stroke();
             ctx.globalAlpha = 1;
         }
