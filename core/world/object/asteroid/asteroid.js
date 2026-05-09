@@ -38,6 +38,6 @@ class Asteroid {
 
 export const asteroids = [];
 
-for (let i = 0; i < 10000; i++) {
+for (let i = 0; i < 2000; i++) {
     asteroids.push(new Asteroid());
 }
