@@ -13,14 +13,14 @@ export default class Ship {
         console.log(color);
         this.x = x;
         this.y = y;
-        this.speed = 10;
-        this.acceleration = 1;
+        this.speed = 15;
+        this.acceleration = 2;
         this.width = width;
         this.height = height;
         this.angle = angle;
         this.color = color;
 
-        this.maxSpeed = 10;
+        this.maxSpeed = 15;
         this.controllable = controllable;
 
 

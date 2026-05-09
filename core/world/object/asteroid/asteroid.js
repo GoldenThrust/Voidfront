@@ -9,8 +9,8 @@ class Asteroid {
     constructor() {
         this.x = randomNum(0, world.width);
         this.y = randomNum(0, world.height);
-        this.width = randomNum(1, 30);
-        this.height = randomNum(1, 30);
+        this.width = randomNum(1, 50);
+        this.height = randomNum(1, 50);
         this.speed = randomNum(-0.3, 0.3);
         this.rotationSpeed = randomNum(-0.015, 0.015);
         this.angle = randomNum(-Math.PI, Math.PI);
@@ -38,6 +38,6 @@ class Asteroid {
 
 export const asteroids = [];
 
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 10000; i++) {
     asteroids.push(new Asteroid());
 }

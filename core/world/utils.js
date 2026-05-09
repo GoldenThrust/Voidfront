@@ -40,15 +40,17 @@ export function drawWrapped({ fn, x, y, margin = { width: 0, height: 0 }, space 
 export function updateWrapped({ fn, x, y, margin = { width: 0, height: 0 }, space = world, screen = canvas }) {
     const base = worldToScreen(x, y, space); // also: pass space here!
 
-    for (let ox = -1; ox <= 1; ox++) {
-        for (let oy = -1; oy <= 1; oy++) {
+    const ox = 0, oy = 0;
+
+    // for (let ox = -1; ox <= 1; ox++) {
+    //     for (let oy = -1; oy <= 1; oy++) {
             const sx = base.x + ox * space.width;
             const sy = base.y + oy * space.height;
 
             if (inScreen({ x: sx, y: sy, space, screen, margin })) {
                 fn(sx, sy);
-            }
-        }
+        //     }
+        // }
     }
 }
 
