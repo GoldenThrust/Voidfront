@@ -4,23 +4,28 @@ import { drawWrapped, inScreen, updateWrapped, worldToScreen, wrap } from "../wo
 import { world } from "../world/world.js";
 import { randomNum } from "../utils/random.js";
 import Trail from "./object/trail.js";
+import { clamp, clampAngle } from "../utils/math.js";
+import { keys } from "../events/keys.js";
 
 const WORLD_MARGIN = world.width / 200;
 export default class Ship {
-    constructor({ x, y, width, height, angle, color = "red" }) {
+    constructor({ x, y, width, height, angle, color = "red", controllable = false }) {
         console.log(color);
         this.x = x;
         this.y = y;
-        this.speed = 0;
+        this.speed = 10;
+        this.acceleration = 1;
         this.width = width;
         this.height = height;
         this.angle = angle;
         this.color = color;
 
-        this.maxSpeed = 50;
+        this.maxSpeed = 10;
+        this.controllable = controllable;
+
 
         this.lastTime = 0;
-        this.trail = new Trail(this.maxSpeed, "white");
+        this.trail = new Trail(this.maxSpeed / this.acceleration * 2, "white");
 
 
         this.vertices = tranformVertices([
@@ -101,19 +106,33 @@ export default class Ship {
             fn: (wx, wy) => {
                 ctx.rotate(-this.angle);
                 drawVerticesPath(this.path2D, this.color);
-            }, x: this.x, y: this.y
+            }, x: this.x, y: this.y, margin: {
+                width: 200, height: 200
+            }
         })
     }
 
-    update(dt) {
-        let rotate = 0;
+    update(t, dt) {
+        let rotation = 0;
+        this.speed = clamp(this.speed + this.acceleration * dt, 0, this.maxSpeed);
 
-        if (dt - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
-            rotate = randomNum(-0.5, 0.5);
-            this.lastTime = dt;
+        
+        if (this.controllable) {
+            if (keys["ArrowLeft"]) {
+                rotation += this.speed * 0.005;
+            }
+            
+            if (keys["ArrowRight"]) {
+                rotation -= this.speed * 0.005;
+            }
+        } else {            
+            if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
+                rotation = this.speed * randomNum(-0.05, 0.05);
+                this.lastTime = t;
+            }
         }
 
-        this.speed = 5;
+        // this.speed = 5;
 
         // updateWrapped(() => {
         this.x = wrap(this.x - Math.sin(this.angle) * this.speed, world.width);
@@ -122,7 +141,9 @@ export default class Ship {
 
         this.trail.update(this.x, this.y, this.speed);
 
-        this.angle += rotate;
+        this.angle = wrap(this.angle + rotation, Math.PI * 2);
+
+        // this.angle = this.controllable ? clampAngle(this.angle, -Math.PI/3, Math.PI/3) : this.angle;
         // }, this.x, this.y, {
         //     width: 100,
         //     height: 100
@@ -130,10 +151,10 @@ export default class Ship {
     }
 }
 
-export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue" });
+export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue", controllable: false });
 
 export const ships = [];
 
-for (let i = 0; i < 50; i++) {
+for (let i = 0; i < 500; i++) {
     ships.push(new Ship({ x: randomNum(-canvas.width, world.width), y: randomNum(0, world.height), angle: 0, width: 40, height: 40 }));
 }

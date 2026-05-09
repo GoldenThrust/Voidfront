@@ -11,8 +11,8 @@ class Asteroid {
         this.y = randomNum(0, world.height);
         this.width = randomNum(1, 30);
         this.height = randomNum(1, 30);
-        this.speed = randomNum(-0.2, 0.2);
-        this.rotationSpeed = randomNum(-0.01, 0.01);
+        this.speed = randomNum(-0.3, 0.3);
+        this.rotationSpeed = randomNum(-0.015, 0.015);
         this.angle = randomNum(-Math.PI, Math.PI);
         this.vertices = tranformVertices(shapes[Math.floor(Math.random() * shapes.length)], 0, 0, this.width, this.height, this.angle);
         this.path2D = createVerticesPath(this.vertices)

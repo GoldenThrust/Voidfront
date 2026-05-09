@@ -11,9 +11,9 @@ export default class Minimap {
         this.canvas.width = width;
         this.canvas.height = height;
 
-        this.canvas.style.width =`${width}px`;
+        this.canvas.style.width = `${width}px`;
         this.canvas.style.height = `${height}px`;
-    
+
         const minScale = Math.max(canvas.width / world.width, canvas.height / world.height);
 
         scale = clamp(scale, minScale, 1);
@@ -24,10 +24,10 @@ export default class Minimap {
             width: width / scale,
             height: height / scale
         }
-    
+
         this.sx = this.world.width / world.width;
         this.sy = this.world.height / world.height;
-        
+
         this.ctx = this.canvas.getContext("2d");
 
         document.documentElement.appendChild(this.canvas);
@@ -42,10 +42,6 @@ export default class Minimap {
         const dx = this.sx * x;
         const dy = this.sy * y;
 
-        // this.ctx.beginPath();
-        // this.ctx.arc(dx, dy, size, 0, Math.PI * 2);
-        // this.ctx.fillStyle = color;
-        // this.ctx.fill();
         drawWrapped({
             fn: (wx, wy) => {
                 this.ctx.beginPath();
@@ -74,14 +70,32 @@ export default class Minimap {
         this.world.x = dx;
         this.world.y = dy;
 
-        this.draw(ship.x, ship.y, 2, "#139ff7")
+        this.draw(ship.x, ship.y, 1, "#84d0ff")
 
 
         for (const ship of ships) {
-            this.draw(ship.x, ship.y)
+            this.draw(ship.x, ship.y, 1.5)
         }
         this.ctx.restore();
     }
+
+
+    // render() {
+    //     this.ctx.fillStyle = 'rgba(5, 8, 18, 0.5)';
+    //     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+
+    //     for (const ship of ships) {
+    //         this.ctx.beginPath();
+    //         this.ctx.arc(this.sx * ship.x, this.sy * ship.y, 1.2, 0, Math.PI * 2);
+    //         this.ctx.fillStyle = ship.color;
+    //         this.ctx.fill();
+    //     }
+
+    //     this.ctx.beginPath();
+    //     this.ctx.arc(this.sx * ship.x, this.sy * ship.y, 2.5, 0, Math.PI * 2);
+    //     this.ctx.fillStyle = "#80ddff"
+    //     this.ctx.fill();
+    // }
 }
 
 export const minimap = new Minimap(100, 100, 0.1);

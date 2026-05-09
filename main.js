@@ -4,14 +4,20 @@ import { stars } from "./core/world/object/Star.js";
 import { ctx } from "./core/world/space/canvas.js";
 import { minimap } from "./core/world/minimap.js";
 import { asteroids } from "./core/world/object/asteroid/asteroid.js";
+import { clamp } from "./core/utils/math.js";
 
 async function init() {
     requestAnimationFrame(animate);
 }
 
 let attachWorld = -1;
+let lastTime = 0;
 
 function animate(t) {
+    const deltaTime = clamp((t - lastTime) / 1000, 0.02);
+
+    lastTime = t;
+
     world.render();
 
     world.attach(attachWorld < 0 ? ship : ships[Math.min(attachWorld, ships.length - 1)]);
@@ -25,11 +31,11 @@ function animate(t) {
     }
 
     ship.render();
-    ship.update(t);
+    ship.update(t, deltaTime);
 
     for (const ship of ships) {
         ship.render();
-        ship.update(t);
+        ship.update(t, deltaTime);
     }
 
     minimap.render();
@@ -50,4 +56,8 @@ addEventListener("keydown", ({ key }) => {
     if (key == 'ArrowDown') {
         attachWorld = Math.max(-1, attachWorld - 1)
     }
+
+    if (key == '1') attachWorld = -1;
+
+    console.log(key)
 });
