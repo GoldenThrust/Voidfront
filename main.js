@@ -44,7 +44,7 @@ function animate(t) {
     }
 
     minimap.render();
-    spatial.renderSpatialDebug();
+    // spatial.renderSpatialDebug();
 
     requestAnimationFrame(animate);
 }

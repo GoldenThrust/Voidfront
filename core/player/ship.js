@@ -152,7 +152,7 @@ export default class Ship {
     }
 }
 
-export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue", maxSpeed: 1, controllable: false });
+export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue", maxSpeed: 20, controllable: false });
 
 export const ships = [];
 
