@@ -6,21 +6,22 @@ import { randomNum } from "../utils/random.js";
 import Trail from "./object/trail.js";
 import { clamp, clampAngle } from "../utils/math.js";
 import { keys } from "../events/keys.js";
+import { sizeOf } from "../utils/constants.js";
 
 const WORLD_MARGIN = world.width / 200;
 export default class Ship {
-    constructor({ x, y, width, height, angle, color = "red", controllable = false }) {
+    constructor({ x, y, width, height, angle, speed = 0, acceleration = 2, maxSpeed = 15, color = "red", controllable = false }) {
         console.log(color);
         this.x = x;
         this.y = y;
-        this.speed = 15;
-        this.acceleration = 2;
+        this.speed = speed;
+        this.acceleration = acceleration;
         this.width = width;
         this.height = height;
         this.angle = angle;
         this.color = color;
 
-        this.maxSpeed = 15;
+        this.maxSpeed = maxSpeed;
         this.controllable = controllable;
 
 
@@ -151,10 +152,10 @@ export default class Ship {
     }
 }
 
-export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue", controllable: false });
+export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue", maxSpeed: 1, controllable: false });
 
 export const ships = [];
 
-for (let i = 0; i < 500; i++) {
+for (let i = 0; i < sizeOf.ship; i++) {
     ships.push(new Ship({ x: randomNum(-canvas.width, world.width), y: randomNum(0, world.height), angle: 0, width: 40, height: 40 }));
 }

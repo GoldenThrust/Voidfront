@@ -4,6 +4,7 @@ import { ctx } from "../../space/canvas.js";
 import { drawWrapped, wrap } from "../../utils.js";
 import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } from "../../../utils/vertices.js";
 import { shapes } from "./shapes.js";
+import { sizeOf } from "../../../utils/constants.js";
 
 class Asteroid {
     constructor() {
@@ -38,6 +39,6 @@ class Asteroid {
 
 export const asteroids = [];
 
-for (let i = 0; i < 2000; i++) {
+for (let i = 0; i < sizeOf.asteroid; i++) {
     asteroids.push(new Asteroid());
 }

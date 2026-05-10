@@ -5,6 +5,7 @@ import { ctx } from "./core/world/space/canvas.js";
 import { minimap } from "./core/world/minimap.js";
 import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 import { clamp } from "./core/utils/math.js";
+import { spatial } from "./core/world/spatialHash.js";
 
 async function init() {
     requestAnimationFrame(animate);
@@ -17,6 +18,7 @@ function animate(t) {
     const deltaTime = clamp((t - lastTime) / 1000, 0.02);
 
     lastTime = t;
+    spatial.clear();
 
     world.render();
 
@@ -28,18 +30,21 @@ function animate(t) {
 
     for (const asteroid of asteroids) {
         asteroid.render();
+        spatial.insert(asteroid);
     }
 
     ship.render();
     ship.update(t, deltaTime);
+    spatial.insert(ship);
 
     for (const ship of ships) {
         ship.render();
         ship.update(t, deltaTime);
+        spatial.insert(ship);
     }
 
     minimap.render();
-
+    spatial.renderSpatialDebug();
 
     requestAnimationFrame(animate);
 }

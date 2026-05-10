@@ -2,6 +2,7 @@ import { randomNum } from "../../utils/random.js";
 import { world } from "../world.js";
 import { ctx } from "../space/canvas.js";
 import { drawWrapped, wrap } from "../utils.js";
+import { sizeOf } from "../../utils/constants.js";
 
 class Star {
     constructor({
@@ -33,7 +34,7 @@ class Star {
 
 export const stars = [];
 
-for (let i = 0; i < 100000; i++) {
+for (let i = 0; i < sizeOf.star; i++) {
     stars.push(new Star({
         x: randomNum(0, world.width),
         y: randomNum(0, world.height),

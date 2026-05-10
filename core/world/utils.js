@@ -14,6 +14,13 @@ export function toroidalDelta(a, b, size) {
     return d;
 }
 
+export function toroidalDistance(x1, y1, x2, y2, space = world) {
+    const dx = toroidalDelta(x1, x2, space.width);
+    const dy = toroidalDelta(y1, y2, space.height);
+
+    return dx * dx + dy * dy;
+}
+
 export function worldToScreen(wx, wy, space = world) {
     const dx = toroidalDelta(space.x, wx, space.width);
     const dy = toroidalDelta(space.y, wy, space.height);
@@ -44,15 +51,15 @@ export function updateWrapped({ fn, x, y, margin = { width: 0, height: 0 }, spac
 
     // for (let ox = -1; ox <= 1; ox++) {
     //     for (let oy = -1; oy <= 1; oy++) {
-            const sx = base.x + ox * space.width;
-            const sy = base.y + oy * space.height;
+    const sx = base.x + ox * space.width;
+    const sy = base.y + oy * space.height;
 
-            if (inScreen({ x: sx, y: sy, space, screen, margin })) {
-                fn(sx, sy);
-        //     }
-        // }
+    if (inScreen({ x: sx, y: sy, space, screen, margin })) {
+        fn(sx, sy);
     }
 }
+//     }
+// }
 
 export function inScreen({ x, y, space = world, screen = canvas, margin = { width: 100, height: 100 } }) {
     const mx = margin.width + (screen.width - space.width) / 2;

@@ -1,6 +1,7 @@
 import { canvas, canvasHeight, canvasWidth, ctx, dpr, resizeCanvas } from "./space/canvas.js";
 import { clamp } from "../utils/math.js";
 import { toroidalDelta, wrap } from "./utils.js";
+import { worldSize } from "../utils/constants.js";
 
 export default class World {
     constructor({ x, y, width, height }) {
@@ -34,6 +35,6 @@ export default class World {
 export const world = new World({
     x: 0,
     y: 0,
-    width: canvas.width * 50,
-    height: canvas.height * 50,
+    width: worldSize.width,
+    height: worldSize.height,
 })

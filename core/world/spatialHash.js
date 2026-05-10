@@ -1,91 +1,187 @@
-import { canvasHeight, canvasWidth, ctx } from "../canvas.js";
-
-
-const directions = [
-    [-1, -1], [0, -1], [1, -1],
-    [-1, 0], [0, 0], [1, 0],
-    [-1, 1], [0, 1], [1, 1]
-];
+import { ctx } from "./space/canvas.js";
+import { toroidalDelta, toroidalDistance, worldToScreen, wrap } from "./utils.js";
+import { world } from "./world.js";
 
 class SpatialHash {
-    constructor() {
-        this.cellSize = 100;
+    constructor(worldWidth, worldHeight, cellSize) {
+        this.worldWidth = worldWidth;
+        this.worldHeight = worldHeight;
+
+        this.cellSize = cellSize;
+
+        this.cols = Math.ceil(worldWidth / cellSize);
+        this.rows = Math.ceil(worldHeight / cellSize);
 
         this.map = new Map();
-    }
-
-    buildSpatialHash(objects) {
-        this.map.clear();
-
-        for (const objs of objects) {
-            for (const obj of objs) {
-                this.insert(obj);
-            }
-        }
-    }
-
-    hash(x, y) {
-
-        const cellX = Math.floor(x / this.cellSize);
-        const cellY = Math.floor(y / this.cellSize);
-
-        return `${cellX},${cellY}`;
-    }
-
-    insert(obj) {
-
-        const key = this.hash(obj.x, obj.y);
-
-        if (!this.map.has(key)) {
-
-            this.map.set(key, []);
-        }
-
-        this.map.get(key).push(obj);
     }
 
     clear() {
         this.map.clear();
     }
 
-    query(obj) {
+    hash(cx, cy) {
+        return `${cx},${cy}`;
+    }
 
-        const nearby = [];
+    wrapCellX(cx) {
+        return wrap(cx, this.cols);
+    }
 
-        const cellX = Math.floor(obj.x / this.cellSize);
-        const cellY = Math.floor(obj.y / this.cellSize);
+    wrapCellY(cy) {
+        return wrap(cy, this.rows);
+    }
 
-        for (const [dx, dy] of directions) {
+    insert(obj) {
+        let cx = Math.floor(obj.x / this.cellSize);
+        let cy = Math.floor(obj.y / this.cellSize);
 
-            const key = `${cellX + dx},${cellY + dy}`;
+        cx = this.wrapCellX(cx);
+        cy = this.wrapCellY(cy);
 
-            if (this.map.has(key)) {
+        const key = this.hash(cx, cy);
 
-                nearby.push(...this.map.get(key));
+        if (!this.map.has(key)) {
+            this.map.set(key, []);
+        }
+
+        this.map.get(key).push(obj);
+    }
+
+    query(x, y) {
+        const results = [];
+
+        const minX = Math.floor(x / this.cellSize);
+        const maxX = Math.floor(x / this.cellSize);
+
+        const minY = Math.floor(y / this.cellSize);
+        const maxY = Math.floor(y / this.cellSize);
+
+        for (let cy = minY; cy <= maxY; cy++) {
+            for (let cx = minX; cx <= maxX; cx++) {
+                const wrappedX = this.wrapCellX(cx);
+                const wrappedY = this.wrapCellY(cy);
+
+                const key = this.hash(wrappedX, wrappedY);
+
+                const bucket = this.map.get(key);
+
+                if (!bucket) continue;
+
+                results.push(...bucket);
             }
         }
 
-        return nearby;
+        return results;
     }
 
-    renderGrid() {
-        ctx.strokeStyle = "#333";
+    queryRadius(x, y, radius) {
+        const results = [];
 
-        ctx.lineWidth = 1;
+        const minX = Math.floor((x - radius) / this.cellSize);
+        const maxX = Math.floor((x + radius) / this.cellSize);
 
-        for (let x = 0; x < canvasWidth; x += CELL_SIZE) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvasHeight);
-            ctx.stroke();
+        const minY = Math.floor((y - radius) / this.cellSize);
+        const maxY = Math.floor((y + radius) / this.cellSize);
+
+        for (let cy = minY; cy <= maxY; cy++) {
+            for (let cx = minX; cx <= maxX; cx++) {
+                const wrappedX = this.wrapCellX(cx);
+                const wrappedY = this.wrapCellY(cy);
+
+                const key = this.hash(wrappedX, wrappedY);
+
+                const bucket = this.map.get(key);
+
+                if (!bucket) continue;
+
+                for (const obj of bucket) {
+                    if (toroidalDistance(obj.x, obj.y, x, y) <= radius * radius) {
+                        results.push(obj);
+                    }
+                }
+            }
         }
-        for (let y = 0; y < canvasWidth; y += CELL_SIZE) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvasWidth, y);
-            ctx.stroke();
+
+        return results;
+    }
+
+    renderSpatialHashGrid() {
+        ctx.beginPath();
+        for (let cy = 0; cy < this.rows; cy++) {
+            for (let cx = 0; cx < this.cols; cx++) {
+                const worldX = cx * this.cellSize;
+                const worldY = cy * this.cellSize;
+
+                const { x: screenX, y: screenY } = worldToScreen(worldX, worldY, world);
+
+                ctx.rect(
+                    screenX,
+                    screenY,
+                    this.cellSize,
+                    this.cellSize
+                );
+            }
         }
+        ctx.strokeStyle = "lime";
+        ctx.stroke();
+    }
+
+    renderActiveCells() {
+        const cellSize = this.cellSize;
+
+        for (const [key, bucket] of this.map) {
+
+            const [cx, cy] = key.split(",").map(Number);
+
+            const worldX = cx * cellSize;
+            const worldY = cy * cellSize;
+
+
+            const { x: screenX, y: screenY } = worldToScreen(worldX, worldY, world);
+
+            ctx.fillStyle = "rgba(0,255,0,0.2)";
+
+            ctx.fillRect(
+                screenX,
+                screenY,
+                cellSize,
+                cellSize
+            );
+        }
+    }
+
+    renderCellLabels() {
+        ctx.fillStyle = "white";
+        ctx.font = "12px monospace";
+
+        for (let cy = 0; cy < this.rows; cy++) {
+
+            for (let cx = 0; cx < this.cols; cx++) {
+
+                const worldX = cx * this.cellSize;
+                const worldY = cy * this.cellSize;
+
+                const { x: screenX, y: screenY } = worldToScreen(worldX, worldY, world);
+
+                ctx.fillText(
+                    `${cx},${cy}`,
+                    screenX + 5,
+                    screenY + 15
+                );
+            }
+        }
+    }
+
+    renderSpatialDebug() {
+        this.renderActiveCells();
+        this.renderSpatialHashGrid();
+        this.renderCellLabels();
     }
 }
 
-export const spatialHash = new SpatialHash(CELL_SIZE);
+
+export const spatial = new SpatialHash(
+    world.width,
+    world.height,
+    400
+);
