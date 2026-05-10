@@ -26,7 +26,7 @@ export default class Ship {
 
 
         this.lastTime = 0;
-        this.trail = new Trail(this.maxSpeed / this.acceleration * 2, "white");
+        this.trail = new Trail(this.maxSpeed / this.acceleration, "white");
 
 
         this.vertices = tranformVertices([
@@ -152,7 +152,7 @@ export default class Ship {
     }
 }
 
-export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue", maxSpeed: 20, controllable: false });
+export const ship = new Ship({ x: 150, y: 150, angle: 0, width: 40, height: 40, color: "blue", speed: 15, maxSpeed: 30, controllable: false });
 
 export const ships = [];
 
