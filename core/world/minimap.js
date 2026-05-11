@@ -47,6 +47,9 @@ export default class Minimap {
                 this.ctx.beginPath();
                 this.ctx.arc(0, 0, size, 0, Math.PI * 2);
                 this.ctx.fillStyle = color;
+                this.ctx.shadowColor = color;
+                this.ctx.shadowBlur = 10;
+
                 this.ctx.fill();
             }, x: dx, y: dy, space: this.world, screen: this.canvas, wCtx: this.ctx
         })
@@ -70,12 +73,21 @@ export default class Minimap {
         this.world.x = dx;
         this.world.y = dy;
 
-        this.draw(ship.x, ship.y, 1, "#84d0ff")
+        this.draw(ship.x, ship.y, 1, "#84d0ff");
+
+        for (const weapon of ship.weaponManager.weapons) {
+            this.draw(weapon.x, weapon.y, 0.8, "yellow");
+        }
+
 
 
         for (const ship of ships) {
-            this.draw(ship.x, ship.y, 1.5)
+            this.draw(ship.x, ship.y, 1.5, "blue");
+            for (const weapon of ship.weaponManager.weapons) {
+                this.draw(weapon.x, weapon.y, 0.8, "red");
+            }
         }
+
         this.ctx.restore();
     }
 

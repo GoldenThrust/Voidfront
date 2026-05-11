@@ -19,15 +19,14 @@ class Asteroid {
         this.path2D = createVerticesPath(this.vertices)
     }
 
-    update(t) {
-        this.x = wrap(this.x + this.speed, world.width);
-        this.y = wrap(this.y + this.speed, world.height);
+    update(dt) {
+        this.x = wrap(this.x + this.speed * dt, world.width);
+        this.y = wrap(this.y + this.speed * dt, world.height);
 
         this.angle = wrap(this.angle + this.rotationSpeed, Math.PI * 2);
     }
 
     render() {
-        this.update();
         drawWrapped({
             fn: () => {
                 ctx.rotate(-this.angle);

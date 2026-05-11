@@ -7,44 +7,56 @@ import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 import { clamp } from "./core/utils/math.js";
 import { spatial } from "./core/world/spatialHash.js";
 
+
 async function init() {
     requestAnimationFrame(animate);
 }
 
 let attachWorld = -1;
-let lastTime = 0;
+let lastTime = performance.now();
+let timeAccumulator = 0;
+const FIXED_DT = 1 / 60;
+
 
 function animate(t) {
-    const deltaTime = clamp((t - lastTime) / 1000, 0.02);
-
+    const deltaTime = clamp((t - lastTime) / 1000, 0, FIXED_DT);
     lastTime = t;
-    spatial.clear();
 
-    world.render();
+    timeAccumulator += deltaTime;
 
-    world.attach(attachWorld < 0 ? ship : ships[Math.min(attachWorld, ships.length - 1)]);
+    // Remove all render from while loop
+    while (timeAccumulator >= FIXED_DT) {
+        spatial.clear();
 
-    for (const star of stars) {
-        star.render();
-    }
+        world.render();
 
-    for (const asteroid of asteroids) {
-        asteroid.render();
-        spatial.insert(asteroid);
-    }
+        world.attach(attachWorld < 0 ? ship : ships[Math.min(attachWorld, ships.length - 1)]);
 
-    ship.render();
-    ship.update(t, deltaTime);
-    spatial.insert(ship);
+        for (const star of stars) {
+            star.render();
+        }
 
-    for (const ship of ships) {
+        for (const asteroid of asteroids) {
+            asteroid.render();
+            asteroid.update();
+            spatial.insert(asteroid);
+        }
+
         ship.render();
         ship.update(t, deltaTime);
         spatial.insert(ship);
-    }
 
-    minimap.render();
-    // spatial.renderSpatialDebug();
+        for (const ship of ships) {
+            ship.render();
+            ship.update(t, deltaTime);
+            spatial.insert(ship);
+        }
+
+        minimap.render();
+        // spatial.renderSpatialDebug();
+
+        timeAccumulator -= FIXED_DT;
+    }
 
     requestAnimationFrame(animate);
 }
@@ -55,14 +67,12 @@ await init();
 
 
 addEventListener("keydown", ({ key }) => {
-    if (key == 'ArrowUp') {
+    if (key == '5') {
         attachWorld = Math.min(attachWorld + 1, ships.length - 1)
     }
-    if (key == 'ArrowDown') {
+    if (key == '6') {
         attachWorld = Math.max(-1, attachWorld - 1)
     }
 
     if (key == '1') attachWorld = -1;
-
-    console.log(key)
 });
