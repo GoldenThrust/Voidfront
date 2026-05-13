@@ -1,6 +1,6 @@
 import { ship, ships } from "../player/ship.js";
 import { world } from "./world.js";
-import { canvas, canvasHeight, canvasWidth } from "./space/canvas.js";
+import { canvas, canvasHeight, canvasWidth } from "./canvas.js";
 import { drawWrapped, toroidalDelta, updateWrapped, wrap } from "./utils.js";
 import { clamp } from "../utils/math.js";
 
@@ -47,8 +47,8 @@ export default class Minimap {
                 this.ctx.beginPath();
                 this.ctx.arc(0, 0, size, 0, Math.PI * 2);
                 this.ctx.fillStyle = color;
-                this.ctx.shadowColor = color;
-                this.ctx.shadowBlur = 10;
+                // this.ctx.shadowColor = color;
+                // this.ctx.shadowBlur = 10;
 
                 this.ctx.fill();
             }, x: dx, y: dy, space: this.world, screen: this.canvas, wCtx: this.ctx

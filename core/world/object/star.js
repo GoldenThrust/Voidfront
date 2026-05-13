@@ -1,6 +1,6 @@
 import { randomNum } from "../../utils/random.js";
 import { world } from "../world.js";
-import { ctx } from "../space/canvas.js";
+import { ctx } from "../canvas.js";
 import { drawWrapped, wrap } from "../utils.js";
 import { sizeOf } from "../../utils/constants.js";
 

@@ -1,4 +1,4 @@
-import { ctx } from "../world/space/canvas.js";
+import { ctx } from "../world/canvas.js";
 
 export function drawVertices(vertices, color = "blue",) {
     ctx.save();
@@ -30,9 +30,9 @@ export function tranformVertices(vertices, cx, cy, scaleX, scaleY, rotation) {
 
     const result = [];
 
-    for (const p of vertices) {
-        const sx = p.x * hw;
-        const sy = p.y * hh;
+    for (const vertex of vertices) {
+        const sx = vertex.x * hw;
+        const sy = vertex.y * hh;
 
         const rx = sx * cos - sy * sin;
         const ry = sx * sin + sy * cos;

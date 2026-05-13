@@ -1,7 +1,7 @@
 import { ship, ships } from "./core/player/ship.js";
 import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
-import { ctx } from "./core/world/space/canvas.js";
+import { ctx } from "./core/world/canvas.js";
 import { minimap } from "./core/world/minimap.js";
 import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 import { clamp } from "./core/utils/math.js";
@@ -15,7 +15,7 @@ async function init() {
 let attachWorld = -1;
 let lastTime = performance.now();
 let timeAccumulator = 0;
-const FIXED_DT = 1 / 60;
+const FIXED_DT = 1 / 270;
 
 
 function animate(t) {

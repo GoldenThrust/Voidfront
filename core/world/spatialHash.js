@@ -1,4 +1,4 @@
-import { ctx } from "./space/canvas.js";
+import { ctx } from "./canvas.js";
 import { toroidalDelta, toroidalDistance, worldToScreen, wrap } from "./utils.js";
 import { world } from "./world.js";
 

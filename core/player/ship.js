@@ -1,4 +1,4 @@
-import { canvas, canvasHeight, canvasWidth, ctx } from "../world/space/canvas.js";
+import { canvas, canvasHeight, canvasWidth, ctx } from "../world/canvas.js";
 import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } from "../utils/vertices.js";
 import { drawWrapped, inScreen, updateWrapped, worldToScreen, wrap } from "../world/utils.js";
 import { world } from "../world/world.js";
@@ -13,7 +13,7 @@ import WeaponManager from "../weapons/manager.js";
 
 const WORLD_MARGIN = world.width / 200;
 export default class Ship {
-    constructor({ x, y, width, height, angle, acceleration = 1000, maxSpeed = 5000, color = "red", controllable = false, maxWeaponHeat = 100 }) {
+    constructor({ x, y, width, height, angle, acceleration = 10000, maxSpeed = 20000, color = "red", controllable = false, maxWeaponHeat = 100 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -25,16 +25,14 @@ export default class Ship {
         this.turnRate = 0.00001;
 
         this.maxSpeed = maxSpeed;
-        this.dampSpeed = 0.995;
+        this.dampSpeed = 0.99;
 
         this.controllable = controllable;
-
 
         this.lastTime = 0;
         this.trail = new Trail(this.maxSpeed / this.acceleration, "white");
 
-
-        this.vertices = tranformVertices([
+        this.vertices = [
             {
                 "x": 0.23006134969325154,
                 "y": -1
@@ -99,28 +97,28 @@ export default class Ship {
                 "x": 0.2331288343558282,
                 "y": -0.3803680981595092
             }
-        ], 0, 0, this.width, this.height, 0);
+        ]
 
-        this.path2D = createVerticesPath(this.vertices);
+        this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, 0, this.width, this.height, 0));
         this.weaponManager = new WeaponManager(maxWeaponHeat)
     }
 
     render() {
         this.weaponManager.render();
-        
+
         ctx.translate(world.width / 2, world.height / 2);
         this.trail.render();
         ctx.translate(-world.width / 2, -world.height / 2);
-        
+
         drawWrapped({
-            fn: (wx, wy) => {
+            fn: () => {
                 ctx.rotate(-this.angle);
                 drawVerticesPath(this.path2D, this.color);
             }, x: this.x, y: this.y, margin: {
                 width: 200, height: 200
             }
         })
-        
+
     }
 
     update(t, dt) {
@@ -152,7 +150,7 @@ export default class Ship {
             if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
                 rotation += this.speed * randomNum(-this.turnRate, this.turnRate) * 10;
                 this.lastTime = t;
-            } else if (t - this.lastTime > randomNum(100, 60000)) {
+            } else if (t - this.lastTime > randomNum(100, 10000)) {
                 this.fire();
             }
         }
@@ -187,18 +185,22 @@ export default class Ship {
             y: this.y - Math.cos(this.angle) * this.height,
             angle: this.angle,
             speed: this.speed,
-            ship
+            ship: this
         })
+    }
+
+    getVertices() {
+        const world = worldToScreen(this.x, this.y);
+        const vertices = tranformVertices(this.vertices, world.x, world.y, this.width, this.height, this.angle);
+
+        return vertices;
     }
 }
 
-export const ship = new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: 0, width: 40, height: 40, color: "#84d0ff",     
-    // acceleration: 10,
-    //  maxSpeed: 30,
-      controllable: false });
+export const ship = new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff", controllable: false });
 
 export const ships = [];
 
 for (let i = 0; i < sizeOf.ship; i++) {
-    ships.push(new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: 0, width: 40, height: 40, color: "blue" }));
+    ships.push(new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "blue" }));
 }

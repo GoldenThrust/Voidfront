@@ -13,3 +13,5 @@ export function resizeCanvas() {
 
 resizeCanvas();
 ctx.scale(dpr, dpr);
+
+ctx.beginPath();

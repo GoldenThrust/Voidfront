@@ -1,5 +1,5 @@
 import { world } from "../../world/world.js";
-import { ctx } from "../../world/space/canvas.js";
+import { ctx } from "../../world/canvas.js";
 import { toroidalDelta } from "../../world/utils.js";
 
 export default class Trail {

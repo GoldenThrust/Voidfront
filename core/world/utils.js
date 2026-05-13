@@ -1,5 +1,5 @@
 import { world } from "./world.js";
-import { canvas, canvasWidth, ctx } from "./space/canvas.js";
+import { canvas, canvasWidth, ctx } from "./canvas.js";
 
 export function wrap(value, size) {
     return ((value % size) + size) % size;

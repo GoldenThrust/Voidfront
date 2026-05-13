@@ -1,6 +1,6 @@
 import { randomNum } from "../../../utils/random.js";
 import { world } from "../../world.js";
-import { ctx } from "../../space/canvas.js";
+import { ctx } from "../../canvas.js";
 import { drawWrapped, wrap } from "../../utils.js";
 import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } from "../../../utils/vertices.js";
 import { shapes } from "./shapes.js";
@@ -15,8 +15,8 @@ class Asteroid {
         this.speed = randomNum(-0.3, 0.3);
         this.rotationSpeed = randomNum(-0.015, 0.015);
         this.angle = randomNum(-Math.PI, Math.PI);
-        this.vertices = tranformVertices(shapes[Math.floor(Math.random() * shapes.length)], 0, 0, this.width, this.height, this.angle);
-        this.path2D = createVerticesPath(this.vertices)
+        this.vertices = shapes[Math.floor(Math.random() * shapes.length)];
+        this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, 0, this.width, this.height, this.angle));
     }
 
     update(dt) {
@@ -33,6 +33,12 @@ class Asteroid {
                 drawVerticesPath(this.path2D, "grey");
             }, x: this.x, y: this.y
         })
+    }
+
+    getVertices() {
+        const vertices = tranformVertices(this.vertices, this.x, this.y, this.width, this.height, this.angle);
+
+        return vertices;
     }
 }
 

@@ -1,4 +1,4 @@
-import { canvas, canvasHeight, canvasWidth, ctx, dpr, resizeCanvas } from "./space/canvas.js";
+import { canvas, canvasHeight, canvasWidth, ctx, dpr, resizeCanvas } from "./canvas.js";
 import { clamp } from "../utils/math.js";
 import { toroidalDelta, wrap } from "./utils.js";
 import { worldSize } from "../utils/constants.js";

@@ -1,4 +1,4 @@
-import { canvasHeight, canvasWidth } from "../world/space/canvas.js"
+import { canvasHeight, canvasWidth } from "../world/canvas.js"
 
 export const sizeOf = {
     ship: 1000,
