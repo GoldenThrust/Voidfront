@@ -2,21 +2,22 @@ import { worldSize } from "../utils/constants.js";
 import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
 
-export default class PulseCanon extends Projectile {
+export default class HeavyRailGun extends Projectile {
     constructor({ x, y, angle, ship, color, speed = 10 }) {
         super({
-            name: "Pulse Canon",
-            speed: speed,
-            acceleration: 10000,
+            name: "Heavy RailGun",
+            speed: speed * 4,
+            acceleration: 100000,
             x: x,
             y: y,
-            width: 10,
-            height: 20,
+            width: 20,
+            height: 90,
             angle: angle,
-            damage: 10,
-            range: 10000,
-            fireRate: 0.05,
-            energyCost: 300,
+            damage: 1000,
+            range: 50000,
+            fireRate: 0.005,
+            energyCost: 1000,
+            penetration: 5,
             ship,
             color
         });

@@ -12,7 +12,7 @@ export default class Asteroid {
         this.y = randomNum(0, world.height);
         this.width = randomNum(1, 50);
         this.height = randomNum(1, 50);
-        this.speed = randomNum(-0.3, 0.3);
+        this.speed = randomNum(-20, 20);
         this.rotationSpeed = randomNum(-0.015, 0.015);
         this.angle = randomNum(-Math.PI, Math.PI);
         this.vertices = shapes[Math.floor(Math.random() * shapes.length)];

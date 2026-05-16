@@ -1,3 +1,7 @@
+import { clamp } from "../utils/math.js";
+import GatlingGun from "./gatlingGun.js";
+import HeavyRailGun from "./heavyRailGun.js";
+import PlasmaCanon from "./plasmaCanon.js";
 import PulseCanon from "./pulse-canon.js";
 
 export default class WeaponManager {
@@ -6,16 +10,17 @@ export default class WeaponManager {
         this.cooldown = 0;
         this.heat = 0;
         this.maxHeat = maxHeat;
+        this.state = "cool";
     }
 
     canFire() {
-        return (this.cooldown <= 0 && this.heat < this.maxHeat)
+        return (this.cooldown <= 0 && this.heat < this.maxHeat && this.state === "cool")
     }
 
-    fire(type, options) {
-        if (!this.canFire()) return;
+    fire(Weapon, options, force = false) {
+        if (!force && !this.canFire()) return;
 
-        this.weapons.push(this.createWeapon(type, options));
+        this.weapons.push(new Weapon(options, force));
     }
 
     render() {
@@ -37,22 +42,32 @@ export default class WeaponManager {
             this.cooldown -= 1;
         }
 
-        this.heat *= 0.99;
+        this.heat = clamp(this.heat  - (this.maxHeat * 0.001), 0, this.maxHeat * 5);
+        // this.heat *= 0.99;
 
+        if (this.state === "cool" && this.heat >= this.maxHeat) {
+            this.state = "hot";
+        } else if (this.state === "hot" && this.heat <= 0) {
+            this.state = "cool";
+        }
+
+        // console.log(this.heat, this.maxHeat, this.heat/this.maxHeat * 100, this.state);
 
         for (const weapon of this.weapons) {
             weapon.update(dt, this);
         }
     }
 
-    createWeapon(type, options) {
-        switch (type) {
-            case "Pulse Canon":
-                return new PulseCanon(options);
-            default:
-                throw new Error(`Unknown weapon type: ${type}`);
-        }
-    }
+    // createWeapon(type, options) {
+    //     switch (type) {
+    //         case "Pulse Canon":
+    //             return new PulseCanon(options);
+    //         case "Gatling Gun":
+    //             return new GatlingGun(options);
+    //         default:
+    //             throw new Error(`Unknown weapon type: ${type}`);
+    //     }
+    // }
 
     destroy(weapon) {
         const index = this.weapons.indexOf(weapon);
@@ -63,3 +78,4 @@ export default class WeaponManager {
 }
 
 // Todo: createWeapon pool
+export const weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon];

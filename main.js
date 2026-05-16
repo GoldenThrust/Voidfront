@@ -7,6 +7,7 @@ import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 import { clamp } from "./core/utils/math.js";
 import { spatial } from "./core/world/spatialHash.js";
 import { explosions } from "./core/player/prop/explosion.js";
+import { weaponTypes } from "./core/weapons/manager.js";
 
 
 async function init() {
@@ -19,6 +20,7 @@ let timeAccumulator = 0;
 const FIXED_DT = 1 / 240;
 
 
+
 function animate(t) {
     const deltaTime = clamp((t - lastTime) / 1000, 0, 10);
     lastTime = t;
@@ -28,8 +30,9 @@ function animate(t) {
     spatial.clear();
     spatial.insertAll([ship], ships, asteroids)
     resizeCanvas()
-    ctx.fillStyle = "white"
-    ctx.fillText(`Ships Alive: ${ships.length} - Destroyed: ${destroyedShips.length}`, 10, 10)
+    ctx.font = "20px monospace"
+    ctx.fillStyle = "white";
+    ctx.fillText(`Ships Alive: ${ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${weaponTypes[ship.weaponId].name} heat: ${Math.ceil((ship.weaponManager.heat/ship.weaponManager.maxHeat) * 100)}`, 10, 30)
 
 
     while (timeAccumulator >= FIXED_DT) {
@@ -86,6 +89,18 @@ addEventListener("keydown", ({ key }) => {
     if (key == '6') {
         attachWorld = Math.max(-1, attachWorld - 1)
     }
+
+    if (key === "a") {
+        ship.weaponId = (ship.weaponId - 1) < 0 ? weaponTypes.length - 1 : ship.weaponId - 1;
+        console.log(ship.weaponId, ship.weaponId % weaponTypes.length)
+    }
+
+    if (key === 'd') {
+        ship.weaponId = (ship.weaponId + 1) % weaponTypes.length;
+        console.log(ship.weaponId, ship.weaponId % weaponTypes.length)
+    }
+
+    console.log(key)
 
     if (key == '1') attachWorld = -1;
 });

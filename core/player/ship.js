@@ -9,7 +9,7 @@ import { keys } from "../events/keys.js";
 import { sizeOf } from "../utils/constants.js";
 
 import PulseCanon from "../weapons/pulse-canon.js";
-import WeaponManager from "../weapons/manager.js";
+import WeaponManager, { weaponTypes } from "../weapons/manager.js";
 import { spatial } from "../world/spatialHash.js";
 import Explosion, { explosions } from "./prop/explosion.js";
 
@@ -17,7 +17,7 @@ const WORLD_MARGIN = world.width / 200;
 
 
 export default class Ship {
-    constructor({ x, y, width, height, angle, acceleration = 200, color = "red", controllable = false, maxWeaponHeat = 10 }) {
+    constructor({ x, y, width, height, angle, acceleration = 300, color = "red", controllable = false, maxWeaponHeat = 10000 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -26,14 +26,17 @@ export default class Ship {
         this.height = height;
         this.angle = angle;
         this.color = color;
-        this.turnRate = 1/(this.acceleration * 1000);
+        this.turnRate = 1 / (this.acceleration * 1000);
 
         this.dampSpeed = 0.999;
 
         this.controllable = controllable;
 
         this.lastTime = 0;
-        this.trail = new Trail(Math.ceil(this.acceleration/12), "white");
+        this.trail = new Trail(Math.ceil(this.acceleration / 12), "white");
+
+        this.weaponId = controllable ? 0 : Math.floor(randomNum(0, weaponTypes.length));
+        this.killScore = 0;
 
         this.vertices = [
             {
@@ -147,7 +150,6 @@ export default class Ship {
             if (keys[" "] || keys["Enter"] || keys["Space"]) {
                 this.fire();
             }
-
         } else {
             this.speed = this.speed + (this.acceleration * dt);
 
@@ -176,14 +178,15 @@ export default class Ship {
     }
 
     fire() {
-        this.weaponManager.fire("Pulse Canon", {
+        const prop = {
             x: this.x - Math.sin(this.angle) * this.width,
             y: this.y - Math.cos(this.angle) * this.height,
             angle: this.angle,
             speed: this.speed,
             ship: this,
             color: this.controllable ? "#33cfff" : "red"
-        })
+        }
+        this.weaponManager.fire(weaponTypes[this.weaponId], prop)
     }
 
     destroy() {
@@ -209,7 +212,7 @@ export const ships = [];
 export const ship = new Ship({
     x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff",
     controllable: false,
-    acceleration: 500,
+    // acceleration: 500,
 });
 
 

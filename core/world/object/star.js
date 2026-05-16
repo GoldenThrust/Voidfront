@@ -18,11 +18,11 @@ class Star {
     }
 
     render() {
-        this.twinkle = wrap(this.twinkle + this.speed, Math.PI * 2);
-        const alpha = this.bright * (Math.sin(this.twinkle));
-
         drawWrapped({
             fn: () => {
+                this.twinkle = wrap(this.twinkle + this.speed, Math.PI * 2);
+                const alpha = this.bright * (Math.sin(this.twinkle));
+        
                 ctx.beginPath();
                 ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(200,215,255, ${alpha})`;
