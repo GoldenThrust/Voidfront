@@ -1,4 +1,3 @@
-import { spatial } from "../world/spatialHash.js";
 import PulseCanon from "./pulse-canon.js";
 
 export default class WeaponManager {
@@ -43,7 +42,6 @@ export default class WeaponManager {
 
         for (const weapon of this.weapons) {
             weapon.update(dt, this);
-            spatial.insert(weapon);
         }
     }
 
@@ -62,5 +60,6 @@ export default class WeaponManager {
             this.weapons.splice(index, 1);
         }
     }
-
 }
+
+// Todo: createWeapon pool

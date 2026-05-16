@@ -1,4 +1,4 @@
-import { canvas, canvasHeight, canvasWidth, ctx, dpr, resizeCanvas } from "./canvas.js";
+import { canvas, ctx, dpr } from "./canvas.js";
 import { clamp } from "../utils/math.js";
 import { toroidalDelta, wrap } from "./utils.js";
 import { worldSize } from "../utils/constants.js";
@@ -12,18 +12,14 @@ export default class World {
     }
 
     render() {
-        resizeCanvas()
-        // ctx.strokeStyle = "white";
-        // ctx.strokeRect(canvas.width / 2 - this.width / 2, canvas.height / 2 - this.height / 2, this.width, this.height);
-        // ctx.restore();
-        // ctx.save()
-
         ctx.translate((canvas.width - this.width) / 2, (canvas.height - this.height) / 2);
     }
 
     attach({ x, y, angle, scale = 1 }) {
-        this.x = wrap(this.x + toroidalDelta(this.x, x, this.width) * 0.15, this.width);
-        this.y = wrap(this.y + toroidalDelta(this.y, y, this.height) * 0.15, this.height);
+        this.x = wrap(this.x + toroidalDelta(this.x, x, this.width) * 0.1, this.width);
+        this.y = wrap(this.y + toroidalDelta(this.y, y, this.height) * 0.1, this.height);
+        // this.x = wrap(this.x + toroidalDelta(this.x, x, this.width) * 0.15, this.width);
+        // this.y = wrap(this.y + toroidalDelta(this.y, y, this.height) * 0.15, this.height);
 
 
         this.angle = angle;

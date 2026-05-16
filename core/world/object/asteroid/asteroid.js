@@ -1,12 +1,12 @@
 import { randomNum } from "../../../utils/random.js";
 import { world } from "../../world.js";
 import { ctx } from "../../canvas.js";
-import { drawWrapped, wrap } from "../../utils.js";
+import { drawWrapped, worldToScreen, wrap } from "../../utils.js";
 import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } from "../../../utils/vertices.js";
 import { shapes } from "./shapes.js";
 import { sizeOf } from "../../../utils/constants.js";
 
-class Asteroid {
+export default class Asteroid {
     constructor() {
         this.x = randomNum(0, world.width);
         this.y = randomNum(0, world.height);
@@ -35,8 +35,17 @@ class Asteroid {
         })
     }
 
+    destroy() {
+        const index = asteroids.indexOf(this);
+        if (index > -1) {
+            asteroids.splice(index, 1);
+        }
+    }
+
+
     getVertices() {
-        const vertices = tranformVertices(this.vertices, this.x, this.y, this.width, this.height, this.angle);
+        const world = worldToScreen(this.x, this.y);
+        const vertices = tranformVertices(this.vertices, world.x, world.y, this.width, this.height, this.angle);
 
         return vertices;
     }

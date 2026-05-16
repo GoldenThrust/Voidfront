@@ -82,26 +82,6 @@ function getEdges(vertices) {
 }
 
 
-export function checkCollision(obj1, obj2) {
-  const vertices1 = obj1.getVertices();
-  const vertices2 = obj2.getVertices();
-
-  const edges = [
-    ...getEdges(vertices1),
-    ...getEdges(vertices2)
-  ];
-
-  for (let edge of edges) {
-    const axis = { x: -edge.y, y: edge.x };
-    if (isSeparatingAxis(axis, vertices1, vertices2)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-
 function project(vertices, axis) {
   let min = Infinity;
   let max = -Infinity;
@@ -134,6 +114,9 @@ function getAxes(vertices) {
 }
 
 export function isSeperatingAxes(poly1, poly2) {
+  let smallestOverlap = Infinity;
+  let smallestAxis = null;
+
   const axes1 = getAxes(poly1);
   const axes2 = getAxes(poly2);
 
@@ -141,14 +124,23 @@ export function isSeperatingAxes(poly1, poly2) {
     const proj1 = project(poly1, axis);
     const proj2 = project(poly2, axis);
     if (proj1.max < proj2.min || proj2.max < proj1.min) {
-      return true;
+      return {
+        collision: false
+      };
+    }
+
+    const overlap = Math.min(proj1.max, proj2.max) - Math.max(proj1.min, proj2.min);
+
+    if (overlap < smallestOverlap) {
+      smallestOverlap = overlap;
+      smallestAxis = axis;
     }
   }
 
-  return false;
+  return {
+    collision: true,
+    smallestOverlap,
+    smallestAxis
+  };
 }
 
-
-export function isColliding(poly1, poly2) {
-   
-}

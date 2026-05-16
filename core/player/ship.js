@@ -10,27 +10,30 @@ import { sizeOf } from "../utils/constants.js";
 
 import PulseCanon from "../weapons/pulse-canon.js";
 import WeaponManager from "../weapons/manager.js";
+import { spatial } from "../world/spatialHash.js";
+import Explosion, { explosions } from "./prop/explosion.js";
 
 const WORLD_MARGIN = world.width / 200;
+
+
 export default class Ship {
-    constructor({ x, y, width, height, angle, acceleration = 10000, maxSpeed = 20000, color = "red", controllable = false, maxWeaponHeat = 100 }) {
+    constructor({ x, y, width, height, angle, acceleration = 200, color = "red", controllable = false, maxWeaponHeat = 10 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
-        this.acceleration = acceleration;
+        this.acceleration = clamp(acceleration, 0, 1000);
         this.width = width;
         this.height = height;
         this.angle = angle;
         this.color = color;
-        this.turnRate = 0.00001;
+        this.turnRate = 1/(this.acceleration * 1000);
 
-        this.maxSpeed = maxSpeed;
-        this.dampSpeed = 0.99;
+        this.dampSpeed = 0.999;
 
         this.controllable = controllable;
 
         this.lastTime = 0;
-        this.trail = new Trail(this.maxSpeed / this.acceleration, "white");
+        this.trail = new Trail(Math.ceil(this.acceleration/12), "white");
 
         this.vertices = [
             {
@@ -134,59 +137,61 @@ export default class Ship {
             }
 
             if (keys["ArrowUp"]) {
-                this.speed = clamp(this.speed + (this.acceleration * dt), 0, this.maxSpeed);
+                this.speed = this.speed + (this.acceleration * dt);
             }
 
             if (keys["ArrowDown"]) {
-                this.speed = clamp(this.speed - (this.acceleration * dt), 0, this.maxSpeed);
+                this.speed = this.speed - (this.acceleration * dt);
             }
 
             if (keys[" "] || keys["Enter"] || keys["Space"]) {
                 this.fire();
             }
+
         } else {
-            this.speed = clamp(this.speed + (this.acceleration * dt), 0, this.maxSpeed);
+            this.speed = this.speed + (this.acceleration * dt);
 
             if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
-                rotation += this.speed * randomNum(-this.turnRate, this.turnRate) * 10;
+                rotation += this.speed * randomNum(-this.turnRate, this.turnRate) * 20;
                 this.lastTime = t;
-            } else if (t - this.lastTime > randomNum(100, 10000)) {
+            } else if (t - this.lastTime > randomNum(500, 10000)) {
                 this.fire();
             }
         }
 
-        this.speed = this.speed * this.dampSpeed;
 
-        // this.speed = 5;
+        this.speed = Math.max(this.speed * this.dampSpeed, 0);
+
+
 
         // updateWrapped(() => {
         this.x = wrap(this.x - Math.sin(this.angle) * (this.speed * dt), world.width);
         this.y = wrap(this.y - Math.cos(this.angle) * (this.speed * dt), world.height);
-
 
         this.trail.update(this.x, this.y, this.speed);
 
         this.angle = wrap(this.angle + rotation, Math.PI * 2);
 
         this.weaponManager.update(dt);
-
-        // this.angle = this.controllable ? clampAngle(this.angle, -Math.PI/3, Math.PI/3) : this.angle;
-        // }, this.x, this.y, {
-        //     width: 100,
-        //     height: 100
-        // })
     }
 
     fire() {
         this.weaponManager.fire("Pulse Canon", {
-            // x: this.x,
-            // y: this.y,
             x: this.x - Math.sin(this.angle) * this.width,
             y: this.y - Math.cos(this.angle) * this.height,
             angle: this.angle,
             speed: this.speed,
-            ship: this
+            ship: this,
+            color: this.controllable ? "#33cfff" : "red"
         })
+    }
+
+    destroy() {
+        const index = ships.indexOf(this);
+        if (index > -1) {
+            explosions.push(new Explosion(this.x, this.y))
+            destroyedShips.push(ships.splice(index, 1));
+        }
     }
 
     getVertices() {
@@ -197,10 +202,17 @@ export default class Ship {
     }
 }
 
-export const ship = new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff", controllable: false });
 
+export const destroyedShips = []
 export const ships = [];
 
+export const ship = new Ship({
+    x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff",
+    controllable: false,
+    acceleration: 500,
+});
+
+
 for (let i = 0; i < sizeOf.ship; i++) {
-    ships.push(new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "blue" }));
+    ships.push(new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "red" }));
 }

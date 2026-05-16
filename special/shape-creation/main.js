@@ -181,7 +181,6 @@ addEventListener("keydown", ({ code }) => {
     }
 
     if (code === "KeyZ") vertices.pop();
-    // console.log(code)
 
     draw()
 })
@@ -206,7 +205,6 @@ button.addEventListener("click", () => {
     const nPoints = normalizePoints(vertices);
     let worldPoints = [...nPoints];
     navigator.clipboard.writeText(`[${worldPoints.map((point) => `{x: ${point.x}, y: ${point.y}}`)}]`);
-    // console.log(worldPoints)
 })
 
 

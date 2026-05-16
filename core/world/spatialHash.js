@@ -21,6 +21,7 @@ class SpatialHash {
 
     hash(cx, cy) {
         return `${cx},${cy}`;
+        // return Math.floor(cy * this.cols + cx);
     }
 
     wrapCellX(cx) {
@@ -47,34 +48,15 @@ class SpatialHash {
         this.map.get(key).push(obj);
     }
 
-    query(x, y) {
-        const results = [];
-
-        const minX = Math.floor(x / this.cellSize);
-        const maxX = Math.floor(x / this.cellSize);
-
-        const minY = Math.floor(y / this.cellSize);
-        const maxY = Math.floor(y / this.cellSize);
-
-        for (let cy = minY; cy <= maxY; cy++) {
-            for (let cx = minX; cx <= maxX; cx++) {
-                const wrappedX = this.wrapCellX(cx);
-                const wrappedY = this.wrapCellY(cy);
-
-                const key = this.hash(wrappedX, wrappedY);
-
-                const bucket = this.map.get(key);
-
-                if (!bucket) continue;
-
-                results.push(...bucket);
+    insertAll(...object) {
+        for (const elements of object) {
+            for (const element of elements) {
+                this.insert(element);
             }
         }
-
-        return results;
     }
 
-    queryRadius(x, y, radius) {
+    query(x, y, radius = 1) {
         const results = [];
 
         const minX = Math.floor((x - radius) / this.cellSize);
@@ -83,6 +65,7 @@ class SpatialHash {
         const minY = Math.floor((y - radius) / this.cellSize);
         const maxY = Math.floor((y + radius) / this.cellSize);
 
+
         for (let cy = minY; cy <= maxY; cy++) {
             for (let cx = minX; cx <= maxX; cx++) {
                 const wrappedX = this.wrapCellX(cx);
@@ -91,19 +74,21 @@ class SpatialHash {
                 const key = this.hash(wrappedX, wrappedY);
 
                 const bucket = this.map.get(key);
+            
 
                 if (!bucket) continue;
 
                 for (const obj of bucket) {
-                    if (toroidalDistance(obj.x, obj.y, x, y) <= radius * radius) {
+                    // if (toroidalDistance(obj.x, obj.y, x, y) <= radius * radius) {
                         results.push(obj);
-                    }
+                    // }
                 }
             }
         }
 
         return results;
     }
+
 
     renderSpatialHashGrid() {
         ctx.beginPath();
@@ -131,7 +116,7 @@ class SpatialHash {
 
         for (const [key, bucket] of this.map) {
 
-            const [cx, cy] = key.split(",").map(Number);
+            const [cx, cy] = key.split(":").map(Number);
 
             const worldX = cx * cellSize;
             const worldY = cy * cellSize;
@@ -183,5 +168,5 @@ class SpatialHash {
 export const spatial = new SpatialHash(
     world.width,
     world.height,
-    400
+    100
 );
