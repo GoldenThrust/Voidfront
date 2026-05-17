@@ -217,5 +217,5 @@ export const ship = new Ship({
 
 
 for (let i = 0; i < sizeOf.ship; i++) {
-    ships.push(new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "red" }));
+    ships.push(new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "blue" }));
 }
