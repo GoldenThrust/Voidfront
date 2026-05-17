@@ -1,17 +1,17 @@
-import { canvas, canvasHeight, canvasWidth, ctx } from "../world/canvas.js";
-import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } from "../utils/vertices.js";
-import { drawWrapped, inScreen, updateWrapped, worldToScreen, wrap } from "../world/utils.js";
-import { world } from "../world/world.js";
-import { randomNum } from "../utils/random.js";
-import Trail from "./object/trail.js";
-import { clamp, clampAngle } from "../utils/math.js";
-import { keys } from "../events/keys.js";
-import { sizeOf } from "../utils/constants.js";
+import { canvas, canvasHeight, canvasWidth, ctx } from "../../world/canvas.js";
+import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } from "../../utils/vertices.js";
+import { drawWrapped, inScreen, updateWrapped, worldToScreen, wrap } from "../../world/utils.js";
+import { world } from "../../world/world.js";
+import { randomNum } from "../../utils/random.js";
+import Trail from "../object/trail.js";
+import { clamp, clampAngle } from "../../utils/math.js";
+import { keys } from "../../events/keys.js";
+import { sizeOf } from "../../utils/constants.js";
 
-import PulseCanon from "../weapons/pulse-canon.js";
-import WeaponManager, { weaponTypes } from "../weapons/manager.js";
-import { spatial } from "../world/spatialHash.js";
-import Explosion, { explosions } from "./prop/explosion.js";
+import PulseCanon from "../../weapons/pulse-canon.js";
+import WeaponManager, { weaponTypes } from "../../weapons/manager.js";
+import { spatial } from "../../world/spatialHash.js";
+import Explosion, { explosions } from "../prop/explosion.js";
 
 const WORLD_MARGIN = world.width / 200;
 

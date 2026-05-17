@@ -1,4 +1,4 @@
-import Ship, { ship } from "../player/ship.js";
+import Ship, { ship } from "../player/ships/ship.js";
 import { isSeperatingAxes } from "../utils/collision.js";
 import { clamp } from "../utils/math.js";
 import { createVerticesPath, drawVerticesPath, tranformVertices } from "../utils/vertices.js";

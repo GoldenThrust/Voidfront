@@ -1,4 +1,4 @@
-import { ship, ships } from "../player/ship.js";
+import { ship, ships } from "../player/ships/ship.js";
 import { world } from "./world.js";
 import { canvas, canvasHeight, canvasWidth } from "./canvas.js";
 import { drawWrapped, toroidalDelta, updateWrapped, wrap } from "./utils.js";
@@ -31,12 +31,35 @@ export default class Minimap {
         this.ctx = this.canvas.getContext("2d");
 
         document.documentElement.appendChild(this.canvas);
+
+        this.lastTime = 0;
     }
 
     clear() {
         this.canvas.width = this.canvas.width;
         this.canvas.height = this.canvas.height;
     }
+
+    drawMainShip(x, y, angle, size = 1, color = "red") {
+        const dx = this.sx * x;
+        const dy = this.sy * y;
+
+        drawWrapped({
+            fn: (wx, wy) => {
+                this.ctx.beginPath();
+                this.ctx.rotate(-angle);
+                this.ctx.moveTo(0, -size * 2);
+                this.ctx.lineTo(size, size * 2);
+                this.ctx.lineTo(0, size / 2);
+                this.ctx.lineTo(-size, size * 2);
+
+                this.ctx.closePath();
+                this.ctx.fillStyle = color;
+                this.ctx.fill();
+            }, x: dx, y: dy, space: this.world, screen: this.canvas, wCtx: this.ctx
+        })
+    }
+
 
     draw(x, y, size = 1, color = "red") {
         const dx = this.sx * x;
@@ -56,12 +79,10 @@ export default class Minimap {
     }
 
     render() {
-        this.ctx.strokeStyle = 'rgba(100, 160, 220, 0.3)';
-        this.ctx.lineWidth = 0.5;
-
-        this.ctx.strokeRect(10, 10, this.canvas.width - 20, this.canvas.height - 20)
+        const captureDuration = 5000;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = 'rgba(5, 8, 18, 0.5)';
+
+        this.ctx.fillStyle = `rgba(12, 16, 26, 0.1)`;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
         this.ctx.save();
@@ -73,21 +94,19 @@ export default class Minimap {
         this.world.x = dx;
         this.world.y = dy;
 
-        this.draw(ship.x, ship.y, 1, "#84d0ff");
+        this.drawMainShip(ship.x, ship.y, ship.angle, this.canvas.width /25, "#84d0ff");
+        this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
 
         for (const weapon of ship.weaponManager.weapons) {
             this.draw(weapon.x, weapon.y, 0.8, "yellow");
         }
 
-
-
         for (const ship of ships) {
-            this.draw(ship.x, ship.y, 1.5, "blue");
+            this.draw(ship.x, ship.y, 1.5, `rgb(0, 8, 255)`);
             for (const weapon of ship.weaponManager.weapons) {
                 this.draw(weapon.x, weapon.y, 0.8, "red");
             }
         }
-
         this.ctx.restore();
     }
 

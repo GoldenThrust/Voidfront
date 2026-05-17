@@ -1,4 +1,4 @@
-import { destroyedShips, ship, ships } from "./core/player/ship.js";
+import { destroyedShips, ship, ships } from "./core/player/ships/ship.js";
 import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
 import { ctx, resizeCanvas } from "./core/world/canvas.js";
