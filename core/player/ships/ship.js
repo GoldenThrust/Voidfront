@@ -162,7 +162,7 @@ export default class Ship {
             if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
                 rotation += this.speed * randomNum(-this.turnRate, this.turnRate) * 20;
                 this.lastTime = t;
-            } else if (t - this.lastTime > randomNum(300, 50000)) {
+            } else if (t - this.lastTime > randomNum(0, 30000)) {
                 this.fire();
             }
         }
