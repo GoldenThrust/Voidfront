@@ -1,4 +1,4 @@
-import Ship, { ship } from "../player/ships/ship.js";
+import Ship from "../player/ships/ship.js";
 import { isSeperatingAxes } from "../utils/collision.js";
 import { clamp } from "../utils/math.js";
 import { createVerticesPath, drawVerticesPath, tranformVertices } from "../utils/vertices.js";
@@ -9,6 +9,7 @@ import { drawWrapped, worldToScreen, wrap } from "../world/utils.js";
 import { world } from "../world/world.js";
 import { shapes } from "./shapes.js";
 import Weapon from "./weapon.js";
+import WeaponManager from "./manager.js";
 
 export default class Projectile extends Weapon {
     constructor({ name, acceleration, speed, x, y, width, height, angle, damage, fireRate, range, energyCost, ship, penetration = 1, vertices = shapes[0], color = "red" }, force) {
@@ -18,10 +19,10 @@ export default class Projectile extends Weapon {
         this.penetration = penetration;
 
         if (!force)
-            ship.weaponManager.setCoolDown(1 / this.fireRate);
+            ship.setCoolDown(1 / this.fireRate);
     }
 
-    update(dt, manager) {
+    update(dt) {
         this.speed = this.speed + (this.acceleration * dt);
 
         this.speed *= this.dampSpeed;
@@ -33,28 +34,29 @@ export default class Projectile extends Weapon {
 
         if (this.distanceTraveled >= this.range) {
             this.travelEnd();
-            manager.destroy(this);
+            WeaponManager.destroy(this);
         }
 
-        this.colliding(manager);
+        this.colliding();
     }
 
-    colliding(manager) {
+    colliding() {
         const object = spatial.query(this.x, this.y, 2);
 
         for (const element of object) {
-            if (element !== ship && (element instanceof Ship || element instanceof Asteroid)) {
+            if (this.ship !== element && (element instanceof Ship || element instanceof Asteroid)) {
                 if (isSeperatingAxes(element.getVertices(), this.getVertices()).collision) {
                     element.destroy();
-                    if (element instanceof Ship)
+                    if (element instanceof Ship) {
                         this.ship.killScore++;
+                    }
                     this.acceleration *= 0.8;
                     this.range *= 0.8;
 
 
                     if (!(--this.penetration)) {
                         this.colide();
-                        manager.destroy(this);
+                        WeaponManager.destroy(this);
                     }
                 }
             }

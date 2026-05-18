@@ -1,8 +1,11 @@
-import { ship, ships } from "../player/ships/ship.js";
 import { world } from "./world.js";
 import { canvas, canvasHeight, canvasWidth } from "./canvas.js";
 import { drawWrapped, toroidalDelta, updateWrapped, wrap } from "./utils.js";
 import { clamp } from "../utils/math.js";
+import { ship } from "../player/ships/player.js";
+import WeaponManager from "../weapons/manager.js";
+import EnemyManager from "../player/ships/enemies/manager.js";
+
 
 export default class Minimap {
     constructor(width, height, scale) {
@@ -94,18 +97,15 @@ export default class Minimap {
         this.world.x = dx;
         this.world.y = dy;
 
-        this.drawMainShip(ship.x, ship.y, ship.angle, this.canvas.width /25, "#84d0ff");
+        this.drawMainShip(ship.x, ship.y, ship.angle, this.canvas.width / 25, "#84d0ff");
         this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
 
-        for (const weapon of ship.weaponManager.weapons) {
+        for (const weapon of WeaponManager.weapons) {
             this.draw(weapon.x, weapon.y, 0.8, "yellow");
         }
 
-        for (const ship of ships) {
+        for (const ship of EnemyManager.ships) {
             this.draw(ship.x, ship.y, 1.5, `rgb(0, 8, 255)`);
-            for (const weapon of ship.weaponManager.weapons) {
-                this.draw(weapon.x, weapon.y, 0.8, "red");
-            }
         }
         this.ctx.restore();
     }

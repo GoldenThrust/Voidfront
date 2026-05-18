@@ -3,6 +3,7 @@ import { randomNum } from "../utils/random.js";
 import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
 import Minature from "./minature.js";
+import WeaponManager from "./manager.js";
 
 export default class PlasmaCanon extends Projectile {
     constructor({ x, y, angle, ship, color, speed = 10 }) {
@@ -36,8 +37,7 @@ export default class PlasmaCanon extends Projectile {
             }
 
             
-            this.ship.weaponManager.fire(Minature, prop, true)
-            // console.log(this.ship.weaponManager, "Exploding");
+            WeaponManager.fire(Minature, prop, true)
         }
     }
 

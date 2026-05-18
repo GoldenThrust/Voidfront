@@ -1,4 +1,4 @@
-import { destroyedShips, ship, ships } from "./core/player/ships/ship.js";
+import Ship, { destroyedShips } from "./core/player/ships/ship.js";
 import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
 import { ctx, resizeCanvas } from "./core/world/canvas.js";
@@ -7,10 +7,16 @@ import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 import { clamp } from "./core/utils/math.js";
 import { spatial } from "./core/world/spatialHash.js";
 import { explosions } from "./core/player/prop/explosion.js";
-import { weaponTypes } from "./core/weapons/manager.js";
+
+
+import { ship } from "./core/player/ships/player.js";
+import EnemyManager from "./core/player/ships/enemies/manager.js";
+import WeaponManager from "./core/weapons/manager.js";
+
 
 
 async function init() {
+    EnemyManager.init();
     requestAnimationFrame(animate);
 }
 
@@ -20,36 +26,33 @@ let timeAccumulator = 0;
 const FIXED_DT = 1 / 240;
 
 
-
-function animate(t) {
+async function animate(t) {
     const deltaTime = clamp((t - lastTime) / 1000, 0, 10);
     lastTime = t;
 
     timeAccumulator += deltaTime;
 
-    spatial.clear();
-    spatial.insertAll([ship], ships, asteroids)
-    resizeCanvas()
-    ctx.font = "20px monospace"
-    ctx.fillStyle = "white";
-    ctx.fillText(`Ships Alive: ${ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${weaponTypes[ship.weaponId].name} heat: ${Math.ceil((ship.weaponManager.heat/ship.weaponManager.maxHeat) * 100)}`, 10, 30)
-
-
     while (timeAccumulator >= FIXED_DT) {
-        world.attach(attachWorld < 0 ? ship : ships[Math.min(attachWorld, ships.length - 1)]);
+        spatial.clear();
+        spatial.insertAll([ship], EnemyManager.ships, asteroids)
+
+        world.attach(attachWorld < 0 ? ship : EnemyManager.ships[Math.min(attachWorld, ships.length - 1)]);
 
         for (const asteroid of asteroids) {
             asteroid.update(FIXED_DT);
         }
 
         ship.update(t, FIXED_DT);
-
-        for (const ship of ships) {
-            ship.update(t, FIXED_DT);
-        }
+        EnemyManager.update(t, FIXED_DT);
+        WeaponManager.update(FIXED_DT)
 
         timeAccumulator -= FIXED_DT;
     }
+
+    resizeCanvas()
+    ctx.font = "20px monospace"
+    ctx.fillStyle = "white";
+    ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${(await (WeaponManager.weaponTypes[ship.weaponId])).default.name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 30)
 
     world.render();
 
@@ -63,9 +66,9 @@ function animate(t) {
 
     ship.render();
 
-    for (const ship of ships) {
-        ship.render();
-    }
+    EnemyManager.render();
+
+    WeaponManager.render();
 
     minimap.render();
     for (const exp of explosions) {
@@ -84,23 +87,21 @@ await init();
 
 addEventListener("keydown", ({ key }) => {
     if (key == '5') {
-        attachWorld = Math.min(attachWorld + 1, ships.length - 1)
+        attachWorld = Math.min(attachWorld + 1, EnemyManager.ships.length - 1)
     }
     if (key == '6') {
         attachWorld = Math.max(-1, attachWorld - 1)
     }
 
     if (key === "a") {
-        ship.weaponId = (ship.weaponId - 1) < 0 ? weaponTypes.length - 1 : ship.weaponId - 1;
-        console.log(ship.weaponId, ship.weaponId % weaponTypes.length)
+        ship.weaponId = (ship.weaponId - 1) < 0 ? WeaponManager.weaponTypes.length - 1 : ship.weaponId - 1;
     }
 
     if (key === 'd') {
-        ship.weaponId = (ship.weaponId + 1) % weaponTypes.length;
-        console.log(ship.weaponId, ship.weaponId % weaponTypes.length)
+        ship.weaponId = (ship.weaponId + 1) % WeaponManager.weaponTypes.length;
     }
 
-    console.log(key)
+    // console.log(key)
 
     if (key == '1') attachWorld = -1;
 });

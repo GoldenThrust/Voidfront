@@ -9,7 +9,7 @@ import { keys } from "../../events/keys.js";
 import { sizeOf } from "../../utils/constants.js";
 
 import PulseCanon from "../../weapons/pulse-canon.js";
-import WeaponManager, { weaponTypes } from "../../weapons/manager.js";
+import WeaponManager from "../../weapons/manager.js";
 import { spatial } from "../../world/spatialHash.js";
 import Explosion, { explosions } from "../prop/explosion.js";
 
@@ -35,7 +35,7 @@ export default class Ship {
         this.lastTime = 0;
         this.trail = new Trail(Math.ceil(this.acceleration / 12), "white");
 
-        this.weaponId = controllable ? 0 : Math.floor(randomNum(0, weaponTypes.length));
+        this.weaponId = controllable ? 0 : Math.floor(randomNum(0, WeaponManager.weaponTypes.length));
         this.killScore = 0;
 
         this.vertices = [
@@ -106,12 +106,18 @@ export default class Ship {
         ]
 
         this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, 0, this.width, this.height, 0));
-        this.weaponManager = new WeaponManager(maxWeaponHeat)
+
+        this.cooldown = 0;
+        this.heat = 0;
+        this.maxHeat = maxWeaponHeat;
+        this.state = "cool";
+    }
+
+    canFire() {
+        return (this.cooldown <= 0 && this.heat < this.maxHeat && this.state === "cool")
     }
 
     render() {
-        this.weaponManager.render();
-
         ctx.translate(world.width / 2, world.height / 2);
         this.trail.render();
         ctx.translate(-world.width / 2, -world.height / 2);
@@ -165,7 +171,6 @@ export default class Ship {
         this.speed = Math.max(this.speed * this.dampSpeed, 0);
 
 
-
         // updateWrapped(() => {
         this.x = wrap(this.x - Math.sin(this.angle) * (this.speed * dt), world.width);
         this.y = wrap(this.y - Math.cos(this.angle) * (this.speed * dt), world.height);
@@ -174,10 +179,26 @@ export default class Ship {
 
         this.angle = wrap(this.angle + rotation, Math.PI * 2);
 
-        this.weaponManager.update(dt);
+
+        // weapon update
+        if (this.cooldown > 0) {
+            this.cooldown -= 1;
+        }
+
+        this.heat = clamp(this.heat - (this.maxHeat * 0.001), 0, this.maxHeat * 5);
+        // this.heat *= 0.99;
+
+        if (this.state === "cool" && this.heat >= this.maxHeat) {
+            this.state = "hot";
+        } else if (this.state === "hot" && this.heat <= 0) {
+            this.state = "cool";
+        }
+
     }
 
     fire() {
+        if (!this.canFire()) return;
+
         const prop = {
             x: this.x - Math.sin(this.angle) * this.width,
             y: this.y - Math.cos(this.angle) * this.height,
@@ -186,15 +207,21 @@ export default class Ship {
             ship: this,
             color: this.controllable ? "#33cfff" : "red"
         }
-        this.weaponManager.fire(weaponTypes[this.weaponId], prop)
+
+        WeaponManager.fire(WeaponManager.weaponTypes[this.weaponId], prop)
+    }
+
+
+    setCoolDown(val) {
+        this.cooldown = val;
+    }
+
+    increaseHeat(val) {
+        this.heat += val;
     }
 
     destroy() {
-        const index = ships.indexOf(this);
-        if (index > -1) {
-            explosions.push(new Explosion(this.x, this.y))
-            destroyedShips.push(ships.splice(index, 1));
-        }
+        console.log("Game Over");
     }
 
     getVertices() {
@@ -207,15 +234,3 @@ export default class Ship {
 
 
 export const destroyedShips = []
-export const ships = [];
-
-export const ship = new Ship({
-    x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff",
-    controllable: false,
-    // acceleration: 500,
-});
-
-
-for (let i = 0; i < sizeOf.ship; i++) {
-    ships.push(new Ship({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "red" }));
-}

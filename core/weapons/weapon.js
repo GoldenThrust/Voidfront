@@ -1,4 +1,4 @@
-import Ship, { ship } from "../player/ships/ship.js";
+import Ship from "../player/ships/ship.js";
 import { isSeperatingAxes } from "../utils/collision.js";
 import { clamp } from "../utils/math.js";
 import { createVerticesPath, drawVerticesPath, tranformVertices } from "../utils/vertices.js";
@@ -34,7 +34,7 @@ export default class Weapon {
         this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, -this.height / 3, this.width, this.height, 0));
 
         if (!force)
-            ship.weaponManager.increaseHeat(this.energyCost);
+            ship.increaseHeat(this.energyCost);
     }
 
     render() {

@@ -1,81 +1,47 @@
 import { clamp } from "../utils/math.js";
-import GatlingGun from "./gatlingGun.js";
-import HeavyRailGun from "./heavyRailGun.js";
-import PlasmaCanon from "./plasmaCanon.js";
-import PulseCanon from "./pulse-canon.js";
+import { isPromise } from "../utils/misc.js";
+// import GatlingGun from "./gatlingGun.js";
+// import HeavyRailGun from "./heavyRailGun.js";
+// import PlasmaCanon from "./plasmaCanon.js";
+// import PulseCanon from "./pulse-canon.js";
 
 export default class WeaponManager {
-    constructor(maxHeat = 100) {
-        this.weapons = [];
-        this.cooldown = 0;
-        this.heat = 0;
-        this.maxHeat = maxHeat;
-        this.state = "cool";
+    // static weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon];
+    static weaponTypes = [import("./pulse-canon.js"), import("./gatlingGun.js"), import("./heavyRailGun.js"), import("./plasmaCanon.js")];
+
+    static weapons = [];
+
+    static async fire(weapon, options, force = false) {
+        let Weapon = weapon;
+        if (isPromise(weapon)) {
+            Weapon = (await weapon).default;
+            const index = WeaponManager.weapons.indexOf(weapon);
+            if (index > -1) {
+                WeaponManager.weapons[index] = Weapon.constructor;
+            }
+        }
+
+        WeaponManager.weapons.push(new Weapon(options, force));
     }
 
-    canFire() {
-        return (this.cooldown <= 0 && this.heat < this.maxHeat && this.state === "cool")
-    }
-
-    fire(Weapon, options, force = false) {
-        if (!force && !this.canFire()) return;
-
-        this.weapons.push(new Weapon(options, force));
-    }
-
-    render() {
-        for (const weapon of this.weapons) {
+    static render() {
+        for (const weapon of WeaponManager.weapons) {
             weapon.render();
         }
     }
 
-    setCoolDown(val) {
-        this.cooldown = val;
-    }
-
-    increaseHeat(val) {
-        this.heat += val;
-    }
-
-    update(dt) {
-        if (this.cooldown > 0) {
-            this.cooldown -= 1;
-        }
-
-        this.heat = clamp(this.heat  - (this.maxHeat * 0.001), 0, this.maxHeat * 5);
-        // this.heat *= 0.99;
-
-        if (this.state === "cool" && this.heat >= this.maxHeat) {
-            this.state = "hot";
-        } else if (this.state === "hot" && this.heat <= 0) {
-            this.state = "cool";
-        }
-
-        // console.log(this.heat, this.maxHeat, this.heat/this.maxHeat * 100, this.state);
-
-        for (const weapon of this.weapons) {
-            weapon.update(dt, this);
+    static update(dt) {
+        for (const weapon of WeaponManager.weapons) {
+            weapon.update(dt,);
         }
     }
 
-    // createWeapon(type, options) {
-    //     switch (type) {
-    //         case "Pulse Canon":
-    //             return new PulseCanon(options);
-    //         case "Gatling Gun":
-    //             return new GatlingGun(options);
-    //         default:
-    //             throw new Error(`Unknown weapon type: ${type}`);
-    //     }
-    // }
-
-    destroy(weapon) {
-        const index = this.weapons.indexOf(weapon);
+    static destroy(weapon) {
+        const index = WeaponManager.weapons.indexOf(weapon);
         if (index > -1) {
-            this.weapons.splice(index, 1);
+            WeaponManager.weapons.splice(index, 1);
         }
     }
 }
 
 // Todo: createWeapon pool
-export const weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon];
