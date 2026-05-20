@@ -1,4 +1,5 @@
 import { ctx } from "../world/canvas.js";
+import { worldToScreen } from "../world/utils.js";
 
 export function drawVertices(vertices, color = "blue",) {
     ctx.save();
@@ -25,8 +26,8 @@ export function tranformVertices(vertices, cx, cy, scaleX, scaleY, rotation) {
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
 
-    const hw = scaleX/2;
-    const hh = scaleY/2
+    const hw = scaleX / 2;
+    const hh = scaleY / 2
 
     const result = [];
 
@@ -73,4 +74,11 @@ export function drawVerticesPath(path, color = "blue",) {
 
     ctx.fill(path)
     ctx.restore();
+}
+
+export function getVertices(vertices, x, y, width, height, angle) {
+    const world = worldToScreen(x, y);
+    const transformedVertices = tranformVertices(vertices, world.x, world.y, width, height, angle);
+
+    return transformedVertices;
 }

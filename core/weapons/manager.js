@@ -1,26 +1,18 @@
 import { clamp } from "../utils/math.js";
 import { isPromise } from "../utils/misc.js";
-// import GatlingGun from "./gatlingGun.js";
-// import HeavyRailGun from "./heavyRailGun.js";
-// import PlasmaCanon from "./plasmaCanon.js";
-// import PulseCanon from "./pulse-canon.js";
+import GatlingGun from "./gatlingGun.js";
+import HeavyRailGun from "./heavyRailGun.js";
+import { Laser } from "./Laser.js";
+import PlasmaCanon from "./plasmaCanon.js";
+import PulseCanon from "./pulse-canon.js";
 
 export default class WeaponManager {
-    // static weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon];
-    static weaponTypes = [import("./pulse-canon.js"), import("./gatlingGun.js"), import("./heavyRailGun.js"), import("./plasmaCanon.js")];
+    // static weaponTypes = [Laser];
+    static weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon, Laser];
 
     static weapons = [];
 
-    static async fire(weapon, options, force = false) {
-        let Weapon = weapon;
-        if (isPromise(weapon)) {
-            Weapon = (await weapon).default;
-            const index = WeaponManager.weapons.indexOf(weapon);
-            if (index > -1) {
-                WeaponManager.weapons[index] = Weapon.constructor;
-            }
-        }
-
+    static fire(Weapon, options, force = false) {
         WeaponManager.weapons.push(new Weapon(options, force));
     }
 
@@ -30,9 +22,9 @@ export default class WeaponManager {
         }
     }
 
-    static update(dt) {
+    static update(t, dt) {
         for (const weapon of WeaponManager.weapons) {
-            weapon.update(dt,);
+            weapon.update(t, dt);
         }
     }
 

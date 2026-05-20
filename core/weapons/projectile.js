@@ -9,7 +9,6 @@ import { drawWrapped, worldToScreen, wrap } from "../world/utils.js";
 import { world } from "../world/world.js";
 import { shapes } from "./shapes.js";
 import Weapon from "./weapon.js";
-import WeaponManager from "./manager.js";
 
 export default class Projectile extends Weapon {
     constructor({ name, acceleration, speed, x, y, width, height, angle, damage, fireRate, range, energyCost, ship, penetration = 1, vertices = shapes[0], color = "red" }, force) {
@@ -18,11 +17,14 @@ export default class Projectile extends Weapon {
         this.distanceTraveled = 0;
         this.penetration = penetration;
 
+        // console.log("Weapon Initiated");
+
         if (!force)
             ship.setCoolDown(1 / this.fireRate);
     }
 
-    update(dt) {
+    update(t, dt) {
+        // console.log("Projectile Updating", this.x, this.y);
         this.speed = this.speed + (this.acceleration * dt);
 
         this.speed *= this.dampSpeed;
@@ -34,35 +36,9 @@ export default class Projectile extends Weapon {
 
         if (this.distanceTraveled >= this.range) {
             this.travelEnd();
-            WeaponManager.destroy(this);
+            this.destroy();
         }
 
         this.colliding();
     }
-
-    colliding() {
-        const object = spatial.query(this.x, this.y, 2);
-
-        for (const element of object) {
-            if (this.ship !== element && (element instanceof Ship || element instanceof Asteroid)) {
-                if (isSeperatingAxes(element.getVertices(), this.getVertices()).collision) {
-                    element.destroy();
-                    if (element instanceof Ship) {
-                        this.ship.killScore++;
-                    }
-                    this.acceleration *= 0.8;
-                    this.range *= 0.8;
-
-
-                    if (!(--this.penetration)) {
-                        this.colide();
-                        WeaponManager.destroy(this);
-                    }
-                }
-            }
-        }
-    }
-
-    colide() { }
-    travelEnd() { }
 }

@@ -14,17 +14,17 @@ export default class GatlingGun extends Projectile {
             width: 10,
             height: 20,
             angle: angle,
-            damage: 100,
+            damage: 5,
             range: 10000,
-            fireRate: 0.2,
-            energyCost: 100,
+            fireRate: 0.5,
+            energyCost: 50,
             ship,
             color
         });
     }
 
-    update(dt, manager) {
+    update(t, dt) {
         this.angle += randomNum(-0.01, 0.01)
-        super.update(dt, manager);
+        super.update(t, dt);
     }
 }

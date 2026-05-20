@@ -27,32 +27,36 @@ const FIXED_DT = 1 / 240;
 
 
 async function animate(t) {
-    const deltaTime = clamp((t - lastTime) / 1000, 0, 10);
+    const deltaTime = clamp((t - lastTime) / 1000, 0, 1);
     lastTime = t;
 
     timeAccumulator += deltaTime;
+    // console.log("Loop started");
 
     while (timeAccumulator >= FIXED_DT) {
+        // console.log("In loop");
         spatial.clear();
         spatial.insertAll([ship], EnemyManager.ships, asteroids)
 
         world.attach(attachWorld < 0 ? ship : EnemyManager.ships[Math.min(attachWorld, ships.length - 1)]);
 
+        WeaponManager.update(t, FIXED_DT)
+        EnemyManager.update(t, FIXED_DT);
+        ship.update(t, FIXED_DT);
+
         for (const asteroid of asteroids) {
             asteroid.update(FIXED_DT);
         }
 
-        ship.update(t, FIXED_DT);
-        EnemyManager.update(t, FIXED_DT);
-        WeaponManager.update(FIXED_DT)
-
         timeAccumulator -= FIXED_DT;
     }
+
+    // console.log("Out loop");
 
     resizeCanvas()
     ctx.font = "20px monospace"
     ctx.fillStyle = "white";
-    ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${(await (WeaponManager.weaponTypes[ship.weaponId])).default.name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 30)
+    ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${WeaponManager.weaponTypes[ship.weaponId].name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 30)
 
     world.render();
 
@@ -60,21 +64,20 @@ async function animate(t) {
         star.render();
     }
 
+    WeaponManager.render();
+
+    ship.render();
+    EnemyManager.render();
+
     for (const asteroid of asteroids) {
         asteroid.render();
     }
 
-    ship.render();
-
-    EnemyManager.render();
-
-    WeaponManager.render();
-
-    minimap.render();
     for (const exp of explosions) {
         exp.render();
     }
 
+    minimap.render();
     // spatial.renderSpatialDebug();
 
     requestAnimationFrame(animate);

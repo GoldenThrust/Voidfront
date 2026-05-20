@@ -19,13 +19,13 @@ export default class Minimap {
 
         const minScale = Math.max(canvas.width / world.width, canvas.height / world.height);
 
-        scale = clamp(scale, minScale, 1);
+        this.scale = clamp(scale, minScale, 1);
 
         this.world = {
             x: 0,
             y: 0,
-            width: width / scale,
-            height: height / scale
+            width: width / this.scale,
+            height: height / this.scale
         }
 
         this.sx = this.world.width / world.width;
@@ -64,6 +64,24 @@ export default class Minimap {
     }
 
 
+    drawWeapon(x, y, height, angle, size = 1, color = "red") {
+        const dx = this.sx * x;
+        const dy = this.sy * y;
+
+        drawWrapped({
+            fn: (wx, wy) => {
+                this.ctx.rotate(-angle);
+                this.ctx.beginPath();
+                this.ctx.rect(0, 0, size, -Math.max(height / this.world.height, size))
+                this.ctx.fillStyle = color;
+                // this.ctx.shadowColor = color;
+                // this.ctx.shadowBlur = 10;
+
+                this.ctx.fill();
+            }, x: dx, y: dy, space: this.world, screen: this.canvas, wCtx: this.ctx
+        })
+    }
+
     draw(x, y, size = 1, color = "red") {
         const dx = this.sx * x;
         const dy = this.sy * y;
@@ -101,7 +119,7 @@ export default class Minimap {
         this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
 
         for (const weapon of WeaponManager.weapons) {
-            this.draw(weapon.x, weapon.y, 0.8, "yellow");
+            this.drawWeapon(weapon.x, weapon.y, weapon.height, weapon.angle, 0.8, "yellow");
         }
 
         for (const ship of EnemyManager.ships) {

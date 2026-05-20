@@ -11,6 +11,6 @@ class PlayerShips extends Ship {
 export const ship = new PlayerShips({
     x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff",
     controllable: false,
-    // acceleration: 500,
+    acceleration: 500,
 });
 

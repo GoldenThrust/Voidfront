@@ -13,7 +13,7 @@ export default class Minature extends Projectile {
             width: 10,
             height: 10,
             angle: angle,
-            damage: 10,
+            damage: 5,
             range,
             fireRate: 1,
             energyCost: 0,

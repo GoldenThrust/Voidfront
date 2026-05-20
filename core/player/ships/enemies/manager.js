@@ -16,9 +16,10 @@ export default class EnemyManager {
 
     static destroy(enemy) {
         const index = EnemyManager.ships.indexOf(enemy);
-
+        
         if (index > -1) {
-            explosions.push(new Explosion(this.x, this.y))
+            enemy.state = "dead";
+            explosions.push(new Explosion(enemy.x, enemy.y));
             destroyedShips.push(EnemyManager.ships.splice(index, 1));
         }
     }

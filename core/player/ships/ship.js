@@ -17,7 +17,7 @@ const WORLD_MARGIN = world.width / 200;
 
 
 export default class Ship {
-    constructor({ x, y, width, height, angle, acceleration = 300, color = "red", controllable = false, maxWeaponHeat = 10000 }) {
+    constructor({ x, y, width, height, angle, acceleration = 300, life = 100, color = "red", controllable = false, maxWeaponHeat = 10000 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -107,17 +107,21 @@ export default class Ship {
 
         this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, 0, this.width, this.height, 0));
 
+        this.life = 1?? life;
+
         this.cooldown = 0;
         this.heat = 0;
         this.maxHeat = maxWeaponHeat;
-        this.state = "cool";
+        this.weaponState = "cool";
     }
 
     canFire() {
-        return (this.cooldown <= 0 && this.heat < this.maxHeat && this.state === "cool")
+        return (this.cooldown <= 0 && this.heat < this.maxHeat && this.weaponState === "cool")
     }
 
     render() {
+        // if (this.controllable)
+        //     console.log("Ship rendering");
         ctx.translate(world.width / 2, world.height / 2);
         this.trail.render();
         ctx.translate(-world.width / 2, -world.height / 2);
@@ -156,13 +160,14 @@ export default class Ship {
             if (keys[" "] || keys["Enter"] || keys["Space"]) {
                 this.fire();
             }
+            // console.log("Ship Moving", this.x, this.y);
         } else {
             this.speed = this.speed + (this.acceleration * dt);
 
             if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
                 rotation += this.speed * randomNum(-this.turnRate, this.turnRate) * 20;
                 this.lastTime = t;
-            } else if (t - this.lastTime > randomNum(0, 30000)) {
+            } else if (t - this.lastTime > randomNum(200, 60000)) {
                 this.fire();
             }
         }
@@ -186,12 +191,11 @@ export default class Ship {
         }
 
         this.heat = clamp(this.heat - (this.maxHeat * 0.001), 0, this.maxHeat * 5);
-        // this.heat *= 0.99;
 
-        if (this.state === "cool" && this.heat >= this.maxHeat) {
-            this.state = "hot";
-        } else if (this.state === "hot" && this.heat <= 0) {
-            this.state = "cool";
+        if (this.weaponState === "cool" && this.heat >= this.maxHeat) {
+            this.weaponState = "hot";
+        } else if (this.weaponState === "hot" && this.heat <= 0) {
+            this.weaponState = "cool";
         }
 
     }
@@ -200,8 +204,8 @@ export default class Ship {
         if (!this.canFire()) return;
 
         const prop = {
-            x: this.x - Math.sin(this.angle) * this.width,
-            y: this.y - Math.cos(this.angle) * this.height,
+            x: this.x - Math.sin(this.angle) * this.width/2,
+            y: this.y - Math.cos(this.angle) * this.height/2,
             angle: this.angle,
             speed: this.speed,
             ship: this,
@@ -219,6 +223,11 @@ export default class Ship {
     increaseHeat(val) {
         this.heat += val;
     }
+
+    setMaxHeat() {
+        this.weaponState = "hot";
+    }
+
 
     destroy() {
         console.log("Game Over");

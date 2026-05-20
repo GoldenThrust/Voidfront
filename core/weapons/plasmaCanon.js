@@ -13,8 +13,8 @@ export default class PlasmaCanon extends Projectile {
             acceleration: 100000,
             x: x,
             y: y,
-            width: 20,
-            height: 80,
+            width: 10,
+            height: 20,
             angle: angle,
             damage: 10,
             range: 5000,
@@ -24,8 +24,10 @@ export default class PlasmaCanon extends Projectile {
             color: "green"
         });
     }
+
     explode(radius = 500) {
-        for (let i = 0; i < 100; i++) {
+        if (!this.active) return;
+        for (let i = 0; i < 10; i++) {
             const prop = {
                 x: this.x - Math.sin(this.angle) * this.width,
                 y: this.y - Math.cos(this.angle) * this.height,
@@ -46,7 +48,7 @@ export default class PlasmaCanon extends Projectile {
     }
 
     colide() {
-        this.explode();
+        // this.explode();
     }
 
     // update(dt, manager) {

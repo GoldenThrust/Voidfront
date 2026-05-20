@@ -12,8 +12,8 @@ export default class Asteroid {
         this.y = randomNum(0, world.height);
         this.width = randomNum(1, 50);
         this.height = randomNum(1, 50);
-        this.speed = randomNum(-20, 20);
-        this.rotationSpeed = randomNum(-0.015, 0.015);
+        this.speed = randomNum(-8, 8);
+        this.rotationSpeed = randomNum(-0.001, 0.001);
         this.angle = randomNum(-Math.PI, Math.PI);
         this.vertices = shapes[Math.floor(Math.random() * shapes.length)];
         this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, 0, this.width, this.height, this.angle));
@@ -41,7 +41,6 @@ export default class Asteroid {
             asteroids.splice(index, 1);
         }
     }
-
 
     getVertices() {
         const world = worldToScreen(this.x, this.y);
