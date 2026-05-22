@@ -1,3 +1,4 @@
+
 import Ship, { destroyedShips } from "./core/player/ships/ship.js";
 import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
@@ -11,8 +12,9 @@ import { explosions } from "./core/player/prop/explosion.js";
 
 import { ship } from "./core/player/ships/player.js";
 import EnemyManager from "./core/player/ships/enemies/manager.js";
-import WeaponManager from "./core/weapons/manager.js";
 
+import Projectile from "./core/weapons/projectile.js";
+import WeaponManager from "./core/weapons/manager.js";
 
 
 async function init() {

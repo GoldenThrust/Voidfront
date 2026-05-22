@@ -5,19 +5,15 @@ import { createVerticesPath, drawVerticesPath, tranformVertices } from "../utils
 import { ctx } from "../world/canvas.js";
 import Asteroid from "../world/object/asteroid/asteroid.js";
 import { spatial } from "../world/spatialHash.js";
-import { drawWrapped, worldToScreen, wrap } from "../world/utils.js";
+import { drawWrapped, toroidalDistance, worldToScreen, wrap } from "../world/utils.js";
 import { world } from "../world/world.js";
+import WeaponManager from "./manager.js";
 
 import { shapes } from "./shapes.js";
 
-let WeaponManager;
-
-import("./manager.js").then((f) => {
-    WeaponManager = f.default;
-})
 
 export default class Weapon {
-    constructor({ name, type, x, y, width, height, angle, ship, acceleration = 10, speed = 10, damage = 10, range = 1000, energyCost = 10, vertices = shapes[0], color = "red" }, force) {
+    constructor({ name, type, x, y, width, height, angle, ship, acceleration = 10, speed = 10, damage = 10, range = 1000, energyCost = 10, fireRate = 1, vertices = shapes[0], color = "red" }, force) {
         this.name = name;
         this.type = type;
         this.acceleration = acceleration;
@@ -30,7 +26,9 @@ export default class Weapon {
         this.damage = damage;
 
         this.range = range;
+        this.fireRate = fireRate;
         this.energyCost = energyCost;
+
         this.vertices = vertices;
 
         this.color = color;
@@ -42,8 +40,10 @@ export default class Weapon {
 
         this.active = true;
 
-        if (!force)
+        if (!force) {
             ship.increaseHeat(this.energyCost);
+            ship.setCoolDown(1 / this.fireRate);
+        }
     }
 
     render() {
@@ -57,9 +57,8 @@ export default class Weapon {
         })
     }
 
-    async destroy() {
-        if (WeaponManager)
-            WeaponManager.destroy(this);
+    destroy() {
+        WeaponManager.destroy(this);
     }
 
     getVertices() {
@@ -74,9 +73,10 @@ export default class Weapon {
 
         for (const element of object) {
             if (weapon.ship !== element && element?.state !== "dead" && (element instanceof Ship || element instanceof Asteroid)) {
+                weapon.closeObject(element)
                 if (isSeperatingAxes(element.getVertices(), vertices).collision) {
                     if (element instanceof Ship) {
-                        element.life -= weapon.damage;
+                        element.life = Math.max(0, element.life - weapon.damage);
                         if (element.life <= 0) {
                             element.destroy();
                             weapon.ship.killScore++;
@@ -105,4 +105,5 @@ export default class Weapon {
 
     colide() { }
     travelEnd() { }
+    closeObject(obj) { }
 }

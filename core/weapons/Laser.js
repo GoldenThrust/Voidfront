@@ -35,7 +35,7 @@ export class Laser extends Weapon {
         this.y = y - Math.cos(angle) * height/2;
         this.angle = angle;
 
-        if (!(keys[" "] || keys["Enter"] || keys["Space"]) || this.heat > this.maxHeat) {
+        if ((!(keys[" "] || keys["Enter"] || keys["Space"]) && this.ship.controllable) || this.heat > this.maxHeat) {
             this.destroy();
         }
 

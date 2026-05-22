@@ -8,7 +8,6 @@ import { clamp, clampAngle } from "../../utils/math.js";
 import { keys } from "../../events/keys.js";
 import { sizeOf } from "../../utils/constants.js";
 
-import PulseCanon from "../../weapons/pulse-canon.js";
 import WeaponManager from "../../weapons/manager.js";
 import { spatial } from "../../world/spatialHash.js";
 import Explosion, { explosions } from "../prop/explosion.js";
@@ -107,7 +106,7 @@ export default class Ship {
 
         this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, 0, this.width, this.height, 0));
 
-        this.life = 1?? life;
+        this.life = 50 ?? life;
 
         this.cooldown = 0;
         this.heat = 0;
@@ -128,13 +127,19 @@ export default class Ship {
 
         drawWrapped({
             fn: () => {
+                ctx.beginPath();
+                ctx.roundRect(-this.width / 2, -this.height, 50, 5);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.roundRect(-this.width / 2, -this.height, this.life, 5);
+                ctx.fill();
                 ctx.rotate(-this.angle);
+
                 drawVerticesPath(this.path2D, this.color);
             }, x: this.x, y: this.y, margin: {
                 width: 200, height: 200
             }
         })
-
     }
 
     update(t, dt) {
@@ -167,7 +172,7 @@ export default class Ship {
             if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
                 rotation += this.speed * randomNum(-this.turnRate, this.turnRate) * 20;
                 this.lastTime = t;
-            } else if (t - this.lastTime > randomNum(200, 60000)) {
+            } else if (t - this.lastTime > randomNum(0, 60000)) {
                 this.fire();
             }
         }
@@ -204,8 +209,8 @@ export default class Ship {
         if (!this.canFire()) return;
 
         const prop = {
-            x: this.x - Math.sin(this.angle) * this.width/2,
-            y: this.y - Math.cos(this.angle) * this.height/2,
+            x: this.x - Math.sin(this.angle) * this.width / 2,
+            y: this.y - Math.cos(this.angle) * this.height / 2,
             angle: this.angle,
             speed: this.speed,
             ship: this,

@@ -4,24 +4,25 @@ import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
 import Minature from "./minature.js";
 import WeaponManager from "./manager.js";
+import { Mine } from "./mine.js";
 
 export default class PlasmaCanon extends Projectile {
-    constructor({ x, y, angle, ship, color, speed = 10 }) {
+    constructor({ x, y, angle, ship, color, acceleration = 50000, width = 20, height = 50,  damage = 10, range = 5000, speed = 10, fireRate = 0.002, energyCost = 1, }) {
         super({
             name: "Plasma Canon",
             speed: speed,
-            acceleration: 100000,
+            acceleration,
             x: x,
             y: y,
-            width: 10,
-            height: 20,
-            angle: angle,
-            damage: 10,
-            range: 5000,
-            fireRate: 0.002,
-            energyCost: 1,
+            width,
+            height,
+            angle,
+            damage,
+            range,
+            fireRate,
+            energyCost,
             ship,
-            color: "green"
+            color
         });
     }
 
@@ -48,7 +49,7 @@ export default class PlasmaCanon extends Projectile {
     }
 
     colide() {
-        // this.explode();
+        this.explode();
     }
 
     // update(dt, manager) {

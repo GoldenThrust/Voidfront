@@ -1,7 +1,6 @@
 import { worldSize } from "../utils/constants.js";
 import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
-
 export default class Minature extends Projectile {
     constructor({ x, y, angle, ship, range = 500, color, speed = 10 }) {
         super({

@@ -12,19 +12,12 @@ import Weapon from "./weapon.js";
 
 export default class Projectile extends Weapon {
     constructor({ name, acceleration, speed, x, y, width, height, angle, damage, fireRate, range, energyCost, ship, penetration = 1, vertices = shapes[0], color = "red" }, force) {
-        super({ name, type: "projectile", x, y, width, height, acceleration, speed, angle, damage, range, energyCost, ship, vertices, color }, force);
-        this.fireRate = fireRate;
+        super({ name, type: "projectile", x, y, width, height, acceleration, speed, angle, damage, range, energyCost, fireRate, ship, vertices, color }, force);
         this.distanceTraveled = 0;
         this.penetration = penetration;
-
-        // console.log("Weapon Initiated");
-
-        if (!force)
-            ship.setCoolDown(1 / this.fireRate);
     }
 
     update(t, dt) {
-        // console.log("Projectile Updating", this.x, this.y);
         this.speed = this.speed + (this.acceleration * dt);
 
         this.speed *= this.dampSpeed;

@@ -10,7 +10,7 @@ export default class EnemyManager {
 
     static init() {
         for (let i = 0; i < sizeOf.ship; i++) {
-            EnemyManager.ships.push(new ScoutDrone({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "red" }));
+            EnemyManager.ships.push(new ScoutDrone({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "red", acceleration: 100 }));
         }
     }
 
@@ -19,7 +19,7 @@ export default class EnemyManager {
         
         if (index > -1) {
             enemy.state = "dead";
-            explosions.push(new Explosion(enemy.x, enemy.y));
+            // explosions.push(new Explosion(enemy.x, enemy.y));
             destroyedShips.push(EnemyManager.ships.splice(index, 1));
         }
     }

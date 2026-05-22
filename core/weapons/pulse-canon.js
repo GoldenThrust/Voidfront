@@ -21,8 +21,4 @@ export default class PulseCanon extends Projectile {
             color
         });
     }
-
-    // update(dt, manager) {
-    //     super.update(dt, manager)
-    // }
 }

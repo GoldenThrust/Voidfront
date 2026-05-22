@@ -1,14 +1,17 @@
 import { clamp } from "../utils/math.js";
 import { isPromise } from "../utils/misc.js";
+import PulseCanon from "./pulse-canon.js";
 import GatlingGun from "./gatlingGun.js";
 import HeavyRailGun from "./heavyRailGun.js";
 import { Laser } from "./Laser.js";
 import PlasmaCanon from "./plasmaCanon.js";
-import PulseCanon from "./pulse-canon.js";
+import HomingMissile from "./HomingMissile.js";
+import { Mine } from "./mine.js";
 
 export default class WeaponManager {
-    // static weaponTypes = [Laser];
-    static weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon, Laser];
+    // TODO: static weaponTypes = [Laser];
+    static weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon, HomingMissile, Mine];
+    // static weaponTypes = [Mine];
 
     static weapons = [];
 

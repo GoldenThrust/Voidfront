@@ -1,25 +1,25 @@
 import { canvasHeight, canvasWidth } from "../world/canvas.js"
 
 // export const sizeOf = {
-//     ship: 2,
+//     ship: 10,
 //     star: 1000,
-//     asteroid: 10,
+//     asteroid: 0,
 // }
 
 // export const worldSize = {
-//     width: canvasWidth,
-//     height: canvasHeight,
+//     width: canvasWidth * 10,
+//     height: canvasHeight * 10,
 // }
 
 // export const sizeOf = {
-//     ship: 0,
-//     star: 0,
-//     asteroid: 0,
+//     ship: 500,
+//     star: 1000,
+//     asteroid: 500,
 // }
 export const sizeOf = {
-    ship: 1000,
+    ship: 500,
     star: 100000,
-    asteroid: 1000,
+    asteroid: 100,
 }
 
 export const worldSize = {

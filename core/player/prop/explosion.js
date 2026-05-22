@@ -4,8 +4,8 @@ import { drawWrapped, wrap } from "../../world/utils.js";
 import { world } from "../../world/world.js";
 
 export default class Explosion {
-    constructor(x, y, intensity = 200) {
-        this.particles = Array.from(new Array(intensity/20)).map((p) => ({ x, y, vx: randomNum(-intensity, intensity) / 10, vy: randomNum(-intensity, intensity) / 10, radius: randomNum(0.1, 2) }));
+    constructor(x, y, intensity = 100) {
+        this.particles = Array.from(new Array(Math.ceil(intensity/20))).map((p) => ({ x, y, vx: randomNum(-intensity, intensity) / 10, vy: randomNum(-intensity, intensity) / 10, radius: randomNum(0.1, 2) }));
         this.life = 20;
     }
 
