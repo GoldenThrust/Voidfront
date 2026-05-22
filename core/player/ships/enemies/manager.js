@@ -7,6 +7,7 @@ import ScoutDrone from "./scout.js";
 
 export default class EnemyManager {
     static ships = [];
+    static types = [ScoutDrone];
 
     static init() {
         for (let i = 0; i < sizeOf.ship; i++) {

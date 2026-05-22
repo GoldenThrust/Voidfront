@@ -8,18 +8,28 @@
     <title>Rocket Raiders</title>
     <script type="module" src="./main.js"></script>
     <style>
-        button {
+        div {
             position: absolute;
             top:0;
             left: 0;
             padding: 20px;
+        }
+
+        button {
+            height: 50px;
+            font-size: 16px;
+            font-family: monospace;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
     <canvas></canvas>
-    <button>Copy Vertices</button>
+    <div>
+        <button id="copy">Copy Vertices</button>
+        <button id="mirror">Mirror From Left X</button>
+    </div>
 </body>
 
 </html>

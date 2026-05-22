@@ -11,12 +11,13 @@ import { sizeOf } from "../../utils/constants.js";
 import WeaponManager from "../../weapons/manager.js";
 import { spatial } from "../../world/spatialHash.js";
 import Explosion, { explosions } from "../prop/explosion.js";
+import { shapes } from "./shapes.js";
 
 const WORLD_MARGIN = world.width / 200;
 
 
 export default class Ship {
-    constructor({ x, y, width, height, angle, acceleration = 300, life = 100, color = "red", controllable = false, maxWeaponHeat = 10000 }) {
+    constructor({ x, y, width, height, angle, acceleration = 300, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -26,6 +27,8 @@ export default class Ship {
         this.angle = angle;
         this.color = color;
         this.turnRate = 1 / (this.acceleration * 1000);
+
+        this.name = name;
 
         this.dampSpeed = 0.999;
 
@@ -37,72 +40,7 @@ export default class Ship {
         this.weaponId = controllable ? 0 : Math.floor(randomNum(0, WeaponManager.weaponTypes.length));
         this.killScore = 0;
 
-        this.vertices = [
-            {
-                "x": 0.23006134969325154,
-                "y": -1
-            },
-            {
-                "x": -0.23006134969325154,
-                "y": -0.99079754601227
-            },
-            {
-                "x": -0.23006134969325154,
-                "y": -0.3834355828220859
-            },
-            {
-                "x": -0.9969325153374233,
-                "y": -0.3773006134969325
-            },
-            {
-                "x": -0.9969325153374233,
-                "y": 0.08588957055214724
-            },
-            {
-                "x": -0.23006134969325154,
-                "y": 0.0736196319018405
-            },
-            {
-                "x": -0.23006134969325154,
-                "y": 0.6226993865030674
-            },
-            {
-                "x": -0.6104294478527608,
-                "y": 0.6226993865030674
-            },
-            {
-                "x": -0.6104294478527608,
-                "y": 1
-            },
-            {
-                "x": 0.6257668711656442,
-                "y": 1
-            },
-            {
-                "x": 0.6196319018404908,
-                "y": 0.6230061349693252
-            },
-            {
-                "x": 0.2331288343558282,
-                "y": 0.6226993865030674
-            },
-            {
-                "x": 0.23006134969325154,
-                "y": 0.0705521472392638
-            },
-            {
-                "x": 0.9969325153374233,
-                "y": 0.07668711656441718
-            },
-            {
-                "x": 0.9969325153374233,
-                "y": -0.3895705521472393
-            },
-            {
-                "x": 0.2331288343558282,
-                "y": -0.3803680981595092
-            }
-        ]
+        this.vertices = vertices;
 
         this.path2D = createVerticesPath(tranformVertices(this.vertices, 0, 0, this.width, this.height, 0));
 

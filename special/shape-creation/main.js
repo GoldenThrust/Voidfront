@@ -199,16 +199,34 @@ addEventListener("keydown", ({ code }) => {
 //     ctx.stroke();
 // }
 
-const button = document.querySelector("button");
+const cpyBtn = document.querySelector("#copy");
+const mirrorBtn = document.querySelector("#mirror");
 
-button.addEventListener("click", () => {
+cpyBtn.addEventListener("click", () => {
     const nPoints = normalizePoints(vertices);
     let worldPoints = [...nPoints];
     navigator.clipboard.writeText(`[${worldPoints.map((point) => `{x: ${point.x}, y: ${point.y}}`)}]`);
 })
 
+mirrorBtn.addEventListener("click", () => {
+    const { minX, maxX } = getMinMax(vertices);
 
-function normalizePoints(points) {
+    const width = maxX - minX;
+
+    let newPoints = vertices.map(p => ({
+        ...p,
+        x: (2 * maxX) - p.x,
+    }));
+
+    newPoints = newPoints.reverse().pop();
+
+    vertices.push(...newPoints);
+
+    console.log("new Vertices", vertices);
+
+})
+
+function getMinMax(points) {
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -221,6 +239,11 @@ function normalizePoints(points) {
         if (p.x > maxX) maxX = p.x;
         if (p.y > maxY) maxY = p.y;
     }
+
+    return { minX, minY, maxX, maxY }
+}
+function normalizePoints(points) {
+    const { minX, minY, maxX, maxY } = getMinMax(points);
 
     const width = maxX - minX;
     const height = maxY - minY;

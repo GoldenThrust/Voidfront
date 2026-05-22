@@ -2,13 +2,13 @@ import { randomNum } from "../../utils/random.js";
 import { world } from "../../world/world.js";
 import Ship from "./ship.js";
 
-class PlayerShips extends Ship {
-    constructor(props) {
-        super(props);
+class Player extends Ship {
+    constructor({ x, y, width, height, angle, acceleration, color = "red", name = "Player", controllable = true, maxWeaponHeat = 10000 }) {
+        super({ x, y, width, height, angle, acceleration, color, name, maxWeaponHeat, controllable });
     }
 }
 
-export const ship = new PlayerShips({
+export const ship = new Player({
     x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff",
     controllable: true,
     acceleration: 500,

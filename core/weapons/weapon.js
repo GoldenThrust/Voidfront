@@ -75,6 +75,7 @@ export default class Weapon {
             if (weapon.ship !== element && element?.state !== "dead" && (element instanceof Ship || element instanceof Asteroid)) {
                 weapon.closeObject(element)
                 if (isSeperatingAxes(element.getVertices(), vertices).collision) {
+                    console.log(element);
                     if (element instanceof Ship) {
                         element.life = Math.max(0, element.life - weapon.damage);
                         if (element.life <= 0) {

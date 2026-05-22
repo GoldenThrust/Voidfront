@@ -64,15 +64,18 @@ export function createVerticesPath(vertices) {
     return verticesPath;
 }
 
-export function drawVerticesPath(path, color = "blue",) {
+export function drawVerticesPath(path, color = "blue", fill = true) {
     ctx.save();
     ctx.beginPath()
     ctx.lineWidth = 2;
     ctx.fillStyle = color;
     // ctx.strokeStyle = color;
-    ctx.globalAlpha = 0.5;
+    ctx.globalAlpha = 1;
 
-    ctx.fill(path)
+    if (fill)
+        ctx.fill(path);
+    else
+        ctx.stroke(path)
     ctx.restore();
 }
 
