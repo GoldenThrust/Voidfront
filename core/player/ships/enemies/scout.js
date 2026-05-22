@@ -5,32 +5,66 @@ import { ship } from "../player.js";
 import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
+const rTD = (r) => 180 / Math.PI * r;
 export default class ScoutDrone extends EnemyShip {
-    constructor({ x = 10, y = 20, angle = 0}) {
-        super({ x, y, width: 40, height: 40, angle, acceleration: 200, color: "purple", vertices: shapes[1], name: "Scout Drone", maxWeaponHeat: 1000 });
+    constructor({ x = 10, y = 20, angle = 0 }) {
+        super({ x, y, width: 40, height: 40, angle, acceleration: 500, color: "purple", vertices: shapes[1], name: "Scout Drone", maxWeaponHeat: 1000 });
+
+        const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
+
+        console.log("distance", dist);
     }
 
-  
+
     update(t, dt) {
-        if (this.state === "idle") super.update(t, dt);
+        const targetAngle = toroidalAngle(ship.x, ship.y, this.x, this.y);
+
+
+        // console.log("Rotation", targetAngle, rTD(targetAngle))
+        super.update(t, dt);
 
         updateWrapped({
             fn: () => {
-                if (toroidalDistance(ship.x, ship.y, this.x, this.y) < 1000) this.state = "scout";
-                else this.state = "seek";
+                const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
+                if (dist > 5000 ** 5000) {
+                    this.state = "idle"
+                    this.color = "violet";
+                }
 
-                if (this.state === "seek") {
+                if (dist < 6 ** 6) {
+                    this.state = "flee"
+                    this.color = "rgb(73, 95, 255)";
+                } else {
+                    this.state = "seek";
+                    this.color = "rgb(116, 73, 255)";
+                }
+
+                if (["seek", "flee"].includes(this.state)) {
+                    let tangent = 0;
+                    if (this.state === "flee") {
+                        tangent = Math.PI / 2;
+                    } else {
+                        tangent = -Math.PI / 2;
+                    }
+
                     const targetAngle = toroidalAngle(ship.x, ship.y, this.x, this.y);
 
-                    let diff = targetAngle - this.angle;
+                    let diff = (targetAngle + this.angle) + tangent;
+
 
                     diff = Math.atan2(Math.sin(diff), Math.cos(diff));
 
-                    this.angle += clamp(diff, this.turnRate);
+                    this.angle -= clamp(diff, (this.speed * this.turnRate) * 0.9);
+
+                    if (Math.abs(diff) < 0.3 && dist < 2000 ** 2000) {
+                        this.fire();
+                    }
+
+                    this.speed = this.speed + (this.acceleration * dt);
                 }
-            }, x: this.x, y: this.y, screen: {
-                width: canvas.width * 2,
-                height: canvas.height * 2
+            }, x: this.x, y: this.y, margin: {
+                width: 2000,
+                height: 2000
             }
         })
     }

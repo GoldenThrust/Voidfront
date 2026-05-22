@@ -2,13 +2,15 @@ import { randomNum } from "../../utils/random.js";
 import { world } from "../../world/world.js";
 import Ship from "./ship.js";
 
-class Player extends Ship {
+export default class PlayerShip extends Ship {
     constructor({ x, y, width, height, angle, acceleration, color = "red", name = "Player", controllable = true, maxWeaponHeat = 10000 }) {
-        super({ x, y, width, height, angle, acceleration, color, name, maxWeaponHeat, controllable });
+        super({ x, y, width, height, angle, acceleration, color, name, maxWeaponHeat, controllable: false, life: 10000 });
+
+        this.state = "idle";
     }
 }
 
-export const ship = new Player({
+export const ship = new PlayerShip({
     x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "#84d0ff",
     controllable: true,
     acceleration: 500,

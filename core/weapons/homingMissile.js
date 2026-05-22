@@ -1,19 +1,19 @@
-import Ship from "../player/ships/ship.js";
 import { worldSize } from "../utils/constants.js";
 import { clamp } from "../utils/math.js";
 import { randomNum } from "../utils/random.js";
 import { spatial } from "../world/spatialHash.js";
 import { toroidalDelta, toroidalDistance, wrap } from "../world/utils.js";
 import { world } from "../world/world.js";
-import WeaponManager from "./manager.js";
 import PlasmaCanon from "./plasmaCanon.js";
+import Ship from "../player/ships/ship.js";
+
 
 export default class HomingMissile extends PlasmaCanon {
     constructor({ x, y, angle, ship, color, speed = 10 }) {
         super({
             name: "Homing Missile",
             speed: speed,
-            acceleration: 10000,
+            acceleration: 12000,
             x: x,
             y: y,
             width: 20,
@@ -22,13 +22,13 @@ export default class HomingMissile extends PlasmaCanon {
             damage: 5,
             range: 50000,
             fireRate: 0.002,
-            energyCost: 300,
+            energyCost: 5000,
             ship,
             color
         });
 
         this.target = null;
-        this.turnRate = 0.005;
+        this.turnRate = 0.01;
     }
 
     trackEnemy() {
@@ -43,7 +43,7 @@ export default class HomingMissile extends PlasmaCanon {
         const targetAngle = Math.atan2(dy, dx);
 
         // smooth rotation toward target
-        let diff = targetAngle + this.angle;
+        let diff = (targetAngle + this.angle) + Math.PI / 2;
 
         // normalize angle (-PI to PI)
         diff = Math.atan2(Math.sin(diff), Math.cos(diff));
@@ -61,6 +61,9 @@ export default class HomingMissile extends PlasmaCanon {
 
     closeObject(obj) {
         // if (this.target) return;
+        // if (this.ship instanceof EnemyShip && obj instanceof EnemyShip) return;
+        // if (this.ship instanceof PlayerShip && obj instanceof PlayerShip) return;
+        // else if (!(this.ship instanceof PlayerShip) && !(obj instanceof PlayerShip))
         if (!(obj instanceof Ship)) return;
         const targetDistance = this.target ? toroidalDistance(this.target.x, this.target.y, this.x, this.y) : Infinity;
         const newDistance = toroidalDistance(obj.x, obj.y, this.x, this.y);

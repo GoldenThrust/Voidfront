@@ -50,6 +50,8 @@ export default class Weapon {
         drawWrapped({
             fn: () => {
                 ctx.rotate(-this.angle);
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
                 drawVerticesPath(this.path2D, this.color);
             }, x: this.x, y: this.y, margin: {
                 width: 200, height: 200
@@ -75,7 +77,6 @@ export default class Weapon {
             if (weapon.ship !== element && element?.state !== "dead" && (element instanceof Ship || element instanceof Asteroid)) {
                 weapon.closeObject(element)
                 if (isSeperatingAxes(element.getVertices(), vertices).collision) {
-                    console.log(element);
                     if (element instanceof Ship) {
                         element.life = Math.max(0, element.life - weapon.damage);
                         if (element.life <= 0) {

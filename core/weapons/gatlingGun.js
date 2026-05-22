@@ -16,7 +16,7 @@ export default class GatlingGun extends Projectile {
             angle: angle,
             damage: 5,
             range: 10000,
-            fireRate: 0.5,
+            fireRate: 0.05,
             energyCost: 50,
             ship,
             color

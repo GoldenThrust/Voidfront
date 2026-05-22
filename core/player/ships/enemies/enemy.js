@@ -1,6 +1,5 @@
 import Ship from "../ship.js";
 import EnemyManager from "./manager.js";
-import ScoutDrone from "./scout.js";
 
 export default class EnemyShip extends Ship {
     constructor({ state = "idle", ...prop }) {

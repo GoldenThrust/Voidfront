@@ -168,5 +168,5 @@ class SpatialHash {
 export const spatial = new SpatialHash(
     world.width,
     world.height,
-    1000
+    500
 );

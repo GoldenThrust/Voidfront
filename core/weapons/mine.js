@@ -4,7 +4,7 @@ import Minature from "./minature.js";
 import { shapes } from "./shapes.js";
 import Weapon from "./weapon.js";
 
-export class Mine extends Weapon {
+export default class Mine extends Weapon {
     constructor({ x, y, angle, ship, color, speed = 10 }) {
         super({
             name: "Pulse Canon",
@@ -15,7 +15,7 @@ export class Mine extends Weapon {
             width: 20,
             height: 20,
             angle: angle,
-            damage: 10,
+            damage: 50,
             range: 10000,
             fireRate: 1,
             energyCost: ship.maxHeat + 100,
@@ -23,14 +23,21 @@ export class Mine extends Weapon {
             color,
             vertices: shapes[1]
         });
+
+        this.duration = 1000;
     }
 
     update(dt) {
         this.colliding();
+
+        if (!(--this.duration)) {
+            this.destroy()
+            this.explode(200, 1000)
+        };
     }
 
 
-    explode(particles = 10, radius = 500) {
+    explode(particles = 50, radius = 500) {
         if (!this.active) return;
         for (let i = 0; i < particles; i++) {
             const prop = {
@@ -42,7 +49,6 @@ export class Mine extends Weapon {
                 range: randomNum(radius * 0.1, radius / 2),
                 color: "yellow"
             }
-
 
             WeaponManager.fire(Minature, prop, true)
         }

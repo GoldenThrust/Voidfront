@@ -221,9 +221,6 @@ mirrorBtn.addEventListener("click", () => {
     newPoints = newPoints.reverse().pop();
 
     vertices.push(...newPoints);
-
-    console.log("new Vertices", vertices);
-
 })
 
 function getMinMax(points) {

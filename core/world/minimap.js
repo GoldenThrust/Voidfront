@@ -2,7 +2,7 @@ import { world } from "./world.js";
 import { canvas, canvasHeight, canvasWidth } from "./canvas.js";
 import { drawWrapped, toroidalDelta, updateWrapped, wrap } from "./utils.js";
 import { clamp } from "../utils/math.js";
-import { ship } from "../player/ships/player.js";
+import PlayerShip, { ship } from "../player/ships/player.js";
 import WeaponManager from "../weapons/manager.js";
 import EnemyManager from "../player/ships/enemies/manager.js";
 
@@ -91,8 +91,8 @@ export default class Minimap {
                 this.ctx.beginPath();
                 this.ctx.arc(0, 0, size, 0, Math.PI * 2);
                 this.ctx.fillStyle = color;
-                // this.ctx.shadowColor = color;
-                // this.ctx.shadowBlur = 10;
+                this.ctx.shadowColor = color;
+                this.ctx.shadowBlur = 5;
 
                 this.ctx.fill();
             }, x: dx, y: dy, space: this.world, screen: this.canvas, wCtx: this.ctx
@@ -103,9 +103,6 @@ export default class Minimap {
         const captureDuration = 5000;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.fillStyle = `rgba(12, 16, 26, 0.1)`;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-
         this.ctx.save();
         this.ctx.translate((this.canvas.width - this.world.width) / 2, (this.canvas.height - this.world.height) / 2);
 
@@ -115,36 +112,20 @@ export default class Minimap {
         this.world.x = dx;
         this.world.y = dy;
 
-        this.drawMainShip(ship.x, ship.y, ship.angle, this.canvas.width / 25, "#84d0ff");
-        this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
+        this.drawMainShip(ship.x, ship.y, ship.angle, this.canvas.width / 40, "#84d0ff");
+        this.ctx.globalAlpha = 1;
+        // this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
 
         for (const weapon of WeaponManager.weapons) {
-            this.drawWeapon(weapon.x, weapon.y, weapon.height, weapon.angle, 0.8, "yellow");
+            this.drawWeapon(weapon.x, weapon.y, weapon.height, weapon.angle, 2, weapon.ship instanceof PlayerShip ? "yellow" : "rgb(255, 0, 0)");
         }
 
         for (const ship of EnemyManager.ships) {
-            this.draw(ship.x, ship.y, 1.5, `rgb(0, 8, 255)`);
+            this.draw(ship.x, ship.y, 1.5, ship.color);
+            // this.draw(ship.x, ship.y, 1.5, `rgb(181, 117, 255)`);
         }
         this.ctx.restore();
     }
-
-
-    // render() {
-    //     this.ctx.fillStyle = 'rgba(5, 8, 18, 0.5)';
-    //     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-
-    //     for (const ship of ships) {
-    //         this.ctx.beginPath();
-    //         this.ctx.arc(this.sx * ship.x, this.sy * ship.y, 1.2, 0, Math.PI * 2);
-    //         this.ctx.fillStyle = ship.color;
-    //         this.ctx.fill();
-    //     }
-
-    //     this.ctx.beginPath();
-    //     this.ctx.arc(this.sx * ship.x, this.sy * ship.y, 2.5, 0, Math.PI * 2);
-    //     this.ctx.fillStyle = "#80ddff"
-    //     this.ctx.fill();
-    // }
 }
 
 export const minimap = new Minimap(100, 100, 0.1);
