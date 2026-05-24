@@ -2,11 +2,10 @@
 import Ship, { destroyedShips } from "./core/player/ships/ship.js";
 import { world } from "./core/world/world.js";
 import { stars } from "./core/world/object/Star.js";
-import { ctx, resizeCanvas } from "./core/world/canvas.js";
+import { canvas, ctx, resizeCanvas } from "./core/world/canvas.js";
 import { minimap } from "./core/world/minimap.js";
 import { asteroids } from "./core/world/object/asteroid/asteroid.js";
 import { clamp } from "./core/utils/math.js";
-import { spatial } from "./core/world/spatialHash.js";
 import { explosions } from "./core/player/prop/explosion.js";
 
 
@@ -16,6 +15,8 @@ import EnemyManager from "./core/player/ships/enemies/manager.js";
 import Projectile from "./core/weapons/projectile.js";
 import WeaponManager from "./core/weapons/manager.js";
 
+import { spatial } from "./core/world/spatialHash.js";
+import Minature from "./core/weapons/minature.js";
 
 async function init() {
     EnemyManager.init();
@@ -40,6 +41,11 @@ async function animate(t) {
         spatial.clear();
         spatial.insertAll([ship], EnemyManager.ships, asteroids)
 
+        for (const weapon of WeaponManager.weapons) {
+            if (weapon instanceof Minature) continue;
+            spatial.insert(weapon);
+        }
+
         world.attach(attachWorld < 0 ? ship : EnemyManager.ships[Math.min(attachWorld, ships.length - 1)]);
 
         WeaponManager.update(t, FIXED_DT)
@@ -54,11 +60,6 @@ async function animate(t) {
     }
 
     // console.log("Out loop");
-
-    resizeCanvas()
-    ctx.font = "20px monospace"
-    ctx.fillStyle = "white";
-    ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${WeaponManager.weaponTypes[ship.weaponId].name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 30)
 
     world.render();
 
@@ -82,7 +83,22 @@ async function animate(t) {
     minimap.render();
     // spatial.renderSpatialDebug();
 
-    requestAnimationFrame(animate);
+    // static canvas object
+    ctx.resetTransform();
+    ctx.font = "20px monospace"
+    ctx.fillStyle = "white";
+    ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${WeaponManager.weaponTypes[ship.weaponId].name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 20);
+
+    if (ship.life > 0 && EnemyManager.ships.length > 0)
+        requestAnimationFrame(animate);
+    else {
+        const text = ship.life <= 0 ? "Game Over 😭. Try again" : "You dominate the void 🥳.";
+
+        ctx.font = '50px Arial';
+
+        const { width } = ctx.measureText(text);
+        ctx.fillText(text, (canvas.width - width) / 2, canvas.height/2);
+    }
 }
 
 // displayElem.addEventListener("click", async () => {
@@ -104,6 +120,14 @@ addEventListener("keydown", ({ key }) => {
 
     if (key === 'd') {
         ship.weaponId = (ship.weaponId + 1) % WeaponManager.weaponTypes.length;
+    }
+
+    if (key === 'w') {
+        world.scale *= 0.9;
+    }
+
+    if (key === 's') {
+        world.scale *= 1.1;
     }
 
     // console.log(key)

@@ -14,9 +14,9 @@ export default class GatlingGun extends Projectile {
             width: 10,
             height: 20,
             angle: angle,
-            damage: 5,
+            damage: 50,
             range: 10000,
-            fireRate: 0.05,
+            fireRate: 0.5,
             energyCost: 50,
             ship,
             color
@@ -24,7 +24,7 @@ export default class GatlingGun extends Projectile {
     }
 
     update(t, dt) {
-        this.angle += randomNum(-0.01, 0.01)
+        this.angle += randomNum(-0.005, 0.005)
         super.update(t, dt);
     }
 }

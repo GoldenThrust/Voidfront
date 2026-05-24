@@ -6,6 +6,8 @@ import { toroidalDelta, toroidalDistance, wrap } from "../world/utils.js";
 import { world } from "../world/world.js";
 import PlasmaCanon from "./plasmaCanon.js";
 import Ship from "../player/ships/ship.js";
+import Mine from "./mine.js";
+import Asteroid from "../world/object/asteroid/asteroid.js";
 
 
 export default class HomingMissile extends PlasmaCanon {
@@ -13,7 +15,7 @@ export default class HomingMissile extends PlasmaCanon {
         super({
             name: "Homing Missile",
             speed: speed,
-            acceleration: 12000,
+            acceleration: 15000,
             x: x,
             y: y,
             width: 20,
@@ -21,8 +23,8 @@ export default class HomingMissile extends PlasmaCanon {
             angle: angle,
             damage: 5,
             range: 50000,
-            fireRate: 0.002,
-            energyCost: 5000,
+            fireRate: 0.005,
+            energyCost: 1000,
             ship,
             color
         });
@@ -64,7 +66,7 @@ export default class HomingMissile extends PlasmaCanon {
         // if (this.ship instanceof EnemyShip && obj instanceof EnemyShip) return;
         // if (this.ship instanceof PlayerShip && obj instanceof PlayerShip) return;
         // else if (!(this.ship instanceof PlayerShip) && !(obj instanceof PlayerShip))
-        if (!(obj instanceof Ship)) return;
+        if (obj instanceof Asteroid) return;
         const targetDistance = this.target ? toroidalDistance(this.target.x, this.target.y, this.x, this.y) : Infinity;
         const newDistance = toroidalDistance(obj.x, obj.y, this.x, this.y);
 

@@ -51,7 +51,9 @@ class SpatialHash {
     insertAll(...object) {
         for (const elements of object) {
             for (const element of elements) {
-                this.insert(element);
+                if (element !== "Minature") {
+                    this.insert(element);
+                };
             }
         }
     }
@@ -74,13 +76,13 @@ class SpatialHash {
                 const key = this.hash(wrappedX, wrappedY);
 
                 const bucket = this.map.get(key);
-            
+
 
                 if (!bucket) continue;
 
                 for (const obj of bucket) {
                     // if (toroidalDistance(obj.x, obj.y, x, y) <= radius * radius) {
-                        results.push(obj);
+                    results.push(obj);
                     // }
                 }
             }
@@ -168,5 +170,5 @@ class SpatialHash {
 export const spatial = new SpatialHash(
     world.width,
     world.height,
-    500
+    1000
 );

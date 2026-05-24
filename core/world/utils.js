@@ -69,8 +69,8 @@ export function updateWrapped({ fn, x, y, margin = { width: 0, height: 0 }, spac
 // }
 
 export function inScreen({ x, y, space = world, screen = canvas, margin = { width: 100, height: 100 } }) {
-    const mx = margin.width + (screen.width - space.width) / 2;
-    const my = margin.height + (screen.height - space.height) / 2;
+    const mx = margin.width + ((screen.width / world.scale) - space.width) / 2;
+    const my = margin.height + ((screen.height / world.scale) - space.height) / 2;
 
     return x > -mx && x < space.width + mx && y > -my && y < space.height + my;
 }

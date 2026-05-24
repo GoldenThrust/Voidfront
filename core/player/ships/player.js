@@ -4,9 +4,10 @@ import Ship from "./ship.js";
 
 export default class PlayerShip extends Ship {
     constructor({ x, y, width, height, angle, acceleration, color = "red", name = "Player", controllable = true, maxWeaponHeat = 10000 }) {
-        super({ x, y, width, height, angle, acceleration, color, name, maxWeaponHeat, controllable: false, life: 10000 });
+        super({ x, y, width, height, angle, acceleration, color, name, maxWeaponHeat, controllable, life: 1000 });
 
-        this.state = "idle";
+        if (this.controllable === false)
+            this.state = "idle";
     }
 }
 

@@ -16,7 +16,7 @@ import { shapes } from "./shapes.js";
 const WORLD_MARGIN = world.width / 200;
 
 export default class Ship {
-    constructor({ x, y, width, height, angle, acceleration = 300, turnRate = -1, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
+    constructor({ x, y, width, height, angle, acceleration = 100, turnRate = -1, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;

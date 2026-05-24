@@ -128,4 +128,4 @@ export default class Minimap {
     }
 }
 
-export const minimap = new Minimap(100, 100, 0.1);
+export const minimap = new Minimap(160, 160, 0.1);

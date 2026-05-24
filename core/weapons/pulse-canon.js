@@ -13,10 +13,10 @@ export default class PulseCanon extends Projectile {
             width: 10,
             height: 20,
             angle: angle,
-            damage: 10,
+            damage: 40,
             range: 10000,
-            fireRate: 0.05,
-            energyCost: 300,
+            fireRate: 0.1,
+            energyCost: 200,
             ship,
             color
         });

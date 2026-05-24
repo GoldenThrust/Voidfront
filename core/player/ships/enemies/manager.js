@@ -20,7 +20,7 @@ export default class EnemyManager {
         
         if (index > -1) {
             enemy.state = "dead";
-            // explosions.push(new Explosion(enemy.x, enemy.y));
+            explosions.push(new Explosion(enemy.x, enemy.y));
             destroyedShips.push(EnemyManager.ships.splice(index, 1));
         }
     }

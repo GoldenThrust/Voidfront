@@ -8,63 +8,26 @@ import EnemyShip from "./enemy.js";
 const rTD = (r) => 180 / Math.PI * r;
 export default class ScoutDrone extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 40, height: 40, angle, acceleration: 500, color: "purple", vertices: shapes[1], name: "Scout Drone", maxWeaponHeat: 1000 });
-
-        const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
-
-        console.log("distance", dist);
+        super({ x, y, width: 40, height: 40, angle, acceleration: 510, color: "purple", vertices: shapes[1], name: "Scout Drone", maxWeaponHeat: 1000, life: 100 });
+        this.seekAcceleration = this.acceleration;
+        this.fleeAcceleration = this.acceleration * 1.05;
     }
-
 
     update(t, dt) {
         const targetAngle = toroidalAngle(ship.x, ship.y, this.x, this.y);
-
-
-        // console.log("Rotation", targetAngle, rTD(targetAngle))
-        super.update(t, dt);
-
         updateWrapped({
             fn: () => {
                 const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
-                if (dist > 5000 ** 5000) {
-                    this.state = "idle"
-                    this.color = "violet";
-                }
-
-                if (dist < 6 ** 6) {
-                    this.state = "flee"
-                    this.color = "rgb(73, 95, 255)";
-                } else {
-                    this.state = "seek";
-                    this.color = "rgb(116, 73, 255)";
-                }
-
-                if (["seek", "flee"].includes(this.state)) {
-                    let tangent = 0;
-                    if (this.state === "flee") {
-                        tangent = Math.PI / 2;
-                    } else {
-                        tangent = -Math.PI / 2;
+                super.update(t, dt);
+                this.AI({
+                    idleDistance: dist > 10 ** 10, fleeCondition: dist < 6 ** 6 || this.weaponState === "hot", seekCondition: (this.state === "flee" && dist > 7 ** 7) || this.state !== "flee", fireCondition: {
+                        angle: Math.PI/10,
+                        others: dist < 3000000,
                     }
-
-                    const targetAngle = toroidalAngle(ship.x, ship.y, this.x, this.y);
-
-                    let diff = (targetAngle + this.angle) + tangent;
-
-
-                    diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-
-                    this.angle -= clamp(diff, (this.speed * this.turnRate) * 0.9);
-
-                    if (Math.abs(diff) < 0.3 && dist < 2000 ** 2000) {
-                        this.fire();
-                    }
-
-                    this.speed = this.speed + (this.acceleration * dt);
-                }
+                })
             }, x: this.x, y: this.y, margin: {
-                width: 2000,
-                height: 2000
+                width: 3500,
+                height: 3500
             }
         })
     }

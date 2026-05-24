@@ -70,11 +70,12 @@ export default class Weapon {
         return vertices;
     }
 
-    static colliding(weapon, vertices, x, y) {
+    static nearBy(weapon, vertices, x, y) {
         const object = spatial.query(x, y, Math.ceil(weapon.height / spatial.cellSize) + 1);
 
         for (const element of object) {
-            if (weapon.ship !== element && element?.state !== "dead" && (element instanceof Ship || element instanceof Asteroid)) {
+            if (weapon.ship === element || element?.state === "dead" 
+                || weapon === element) return;
                 weapon.closeObject(element)
                 if (isSeperatingAxes(element.getVertices(), vertices).collision) {
                     if (element instanceof Ship) {
@@ -95,14 +96,13 @@ export default class Weapon {
                         weapon.colide();
                         weapon.destroy();
                     }
-                }
             }
         }
     }
 
 
     colliding() {
-        Weapon.colliding(this, this.getVertices(), this.x, this.y);
+        Weapon.nearBy(this, this.getVertices(), this.x, this.y);
     }
 
     colide() { }
