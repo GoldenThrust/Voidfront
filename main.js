@@ -46,7 +46,7 @@ async function animate(t) {
             spatial.insert(weapon);
         }
 
-        world.attach(attachWorld < 0 ? ship : EnemyManager.ships[Math.min(attachWorld, ships.length - 1)]);
+        world.attach(attachWorld < 0 ? ship : EnemyManager.ships[Math.min(attachWorld, EnemyManager.ships.length - 1)]);
 
         WeaponManager.update(t, FIXED_DT)
         EnemyManager.update(t, FIXED_DT);
@@ -92,7 +92,7 @@ async function animate(t) {
     if (ship.life > 0 && EnemyManager.ships.length > 0)
         requestAnimationFrame(animate);
     else {
-        const text = ship.life <= 0 ? "Game Over 😭. Try again" : "You dominate the void 🥳.";
+        const text = ship.life <= 0 ? "Game Over 😭. Try again." : "You dominate the void 🥳.";
 
         ctx.font = '50px Arial';
 
