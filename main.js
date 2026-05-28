@@ -20,10 +20,12 @@ import Minature from "./core/weapons/minature.js";
 
 async function init() {
     EnemyManager.init();
+    await import("./core/world/manager.js");
+    world.attach({ obj: ship });
     requestAnimationFrame(animate);
 }
 
-let attachWorld = -1;
+export let attachWorld = -1;
 let lastTime = performance.now();
 let timeAccumulator = 0;
 const FIXED_DT = 1 / 240;
@@ -46,7 +48,7 @@ async function animate(t) {
             spatial.insert(weapon);
         }
 
-        world.attach(attachWorld < 0 ? ship : EnemyManager.ships[Math.min(attachWorld, EnemyManager.ships.length - 1)]);
+        world.update();
 
         WeaponManager.update(t, FIXED_DT)
         EnemyManager.update(t, FIXED_DT);
@@ -87,7 +89,7 @@ async function animate(t) {
     ctx.resetTransform();
     ctx.font = "20px monospace"
     ctx.fillStyle = "white";
-    ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${WeaponManager.weaponTypes[ship.weaponId].name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 20);
+    ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${ship.weapon.name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 20);
 
     if (ship.life > 0 && EnemyManager.ships.length > 0)
         requestAnimationFrame(animate);
@@ -104,33 +106,3 @@ async function animate(t) {
 // displayElem.addEventListener("click", async () => {
 await init();
 // })
-
-
-addEventListener("keydown", ({ key }) => {
-    if (key == '5') {
-        attachWorld = Math.min(attachWorld + 1, EnemyManager.ships.length - 1)
-    }
-    if (key == '6') {
-        attachWorld = Math.max(-1, attachWorld - 1)
-    }
-
-    if (key === "a") {
-        ship.weaponId = (ship.weaponId - 1) < 0 ? WeaponManager.weaponTypes.length - 1 : ship.weaponId - 1;
-    }
-
-    if (key === 'd') {
-        ship.weaponId = (ship.weaponId + 1) % WeaponManager.weaponTypes.length;
-    }
-
-    if (key === 'w') {
-        world.scale *= 0.9;
-    }
-
-    if (key === 's') {
-        world.scale *= 1.1;
-    }
-
-    // console.log(key)
-
-    if (key == '1') attachWorld = -1;
-});

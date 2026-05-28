@@ -7,8 +7,8 @@ import Ship from "../ship.js";
 import EnemyManager from "./manager.js";
 
 export default class EnemyShip extends Ship {
-    constructor({ x, y, width, height, angle, acceleration, turnRate, life, vertices, color, name, controllable, maxWeaponHeat, state = "idle" }) {
-        super({ x, y, width, height, angle, acceleration, turnRate, life, vertices, color, name, controllable, maxWeaponHeat })
+    constructor({ x, y, width, height, angle, acceleration, turnRate, life, vertices, color, name, controllable, weapon, maxWeaponHeat, state = "idle" }) {
+        super({ x, y, width, height, angle, acceleration, weapon, turnRate, life, vertices, color, name, controllable, maxWeaponHeat })
         this.state = state;
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 1.2;

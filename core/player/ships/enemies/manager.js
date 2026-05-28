@@ -3,15 +3,15 @@ import { randomNum } from "../../../utils/random.js";
 import { world } from "../../../world/world.js";
 import Explosion, { explosions } from "../../prop/explosion.js";
 import { destroyedShips } from "../ship.js";
-import ScoutDrone from "./scout.js";
+import FleetDrone from "./fleet.js";
 
 export default class EnemyManager {
     static ships = [];
-    static types = [ScoutDrone];
+    static types = [FleetDrone];
 
     static init() {
         for (let i = 0; i < sizeOf.ship; i++) {
-            EnemyManager.ships.push(new ScoutDrone({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 40, height: 40, color: "red" }));
+            EnemyManager.ships.push(new FleetDrone({ x: randomNum(0, world.width), y: randomNum(0, world.height), angle: randomNum(-Math.PI * 2, Math.PI * 2), width: 20, height: 20, color: "red" }));
         }
     }
 

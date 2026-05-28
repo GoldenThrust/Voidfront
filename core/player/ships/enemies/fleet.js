@@ -6,11 +6,11 @@ import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
 const rTD = (r) => 180 / Math.PI * r;
-export default class ScoutDrone extends EnemyShip {
+export default class FleetDrone extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 40, height: 40, angle, acceleration: 510, color: "purple", vertices: shapes[1], name: "Scout Drone", maxWeaponHeat: 1000, life: 100 });
+        super({ x, y, width: 40, height: 40, angle, acceleration: 510, color: "purple", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 1000, life: 100 });
         this.seekAcceleration = this.acceleration;
-        this.fleeAcceleration = this.acceleration * 1.05;
+        this.fleeAcceleration = this.acceleration * 0.9;
     }
 
     update(t, dt) {

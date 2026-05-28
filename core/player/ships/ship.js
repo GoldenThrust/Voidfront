@@ -12,11 +12,13 @@ import WeaponManager from "../../weapons/manager.js";
 import { spatial } from "../../world/spatialHash.js";
 import Explosion, { explosions } from "../prop/explosion.js";
 import { shapes } from "./shapes.js";
+import PulseCanon from "../../weapons/pulse-canon.js";
+
 
 const WORLD_MARGIN = world.width / 200;
 
 export default class Ship {
-    constructor({ x, y, width, height, angle, acceleration = 100, turnRate = -1, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
+    constructor({ x, y, width, height, angle, weapon = PulseCanon, acceleration = 100, turnRate = -1, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -36,7 +38,7 @@ export default class Ship {
         this.lastTime = 0;
         this.trail = new Trail(Math.ceil(this.acceleration / 12), "white");
 
-        this.weaponId = controllable ? 0 : Math.floor(randomNum(0, WeaponManager.weaponTypes.length));
+        this.weapon = weapon;
         this.killScore = 0;
 
         this.vertices = vertices;
@@ -60,16 +62,16 @@ export default class Ship {
         drawWrapped({
             fn: () => {
                 // draw life
-                const scaleLife = this.life / this.fullLife * 50;
+                const scaleLife = this.life / this.fullLife * this.width;
 
                 ctx.fillStyle = "springgreen"
                 ctx.strokeStyle = "springgreen"
 
                 ctx.beginPath();
-                ctx.roundRect(-this.width / 2, -this.height, 50, 5, 10);
+                ctx.roundRect(-this.width / 2, -this.height, this.width, 3, 10);
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.roundRect(-this.width / 2, -this.height, scaleLife, 5, 10);
+                ctx.roundRect(-this.width / 2, -this.height, scaleLife, 3, 10);
                 ctx.fill();
                 ctx.rotate(-this.angle);
 
@@ -140,7 +142,7 @@ export default class Ship {
             this.angle = wrap(this.angle + this.speed * randomNum(-this.turnRate, this.turnRate) * 20, Math.PI * 2);
             this.lastTime = t;
         } else if (t - this.lastTime > randomNum(0, 60000) && fire) {
-            this.weaponId = Math.floor(randomNum(0, WeaponManager.weaponTypes.length));
+            this.weapon = Math.floor(randomNum(0, WeaponManager.weaponTypes.length));
             this.fire();
         }
     }
@@ -162,7 +164,7 @@ export default class Ship {
             color: this.name === "Player" ? "#33cfff" : "red"
         }
 
-        WeaponManager.fire(WeaponManager.weaponTypes[this.weaponId], prop)
+        WeaponManager.fire(this.weapon, prop)
     }
 
 

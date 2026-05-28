@@ -1,9 +1,12 @@
+import { keybinds } from "./keybind.js";
+
 export const keys = {};
 export const orientation = {};
 export const touchDetected = {};
 
 addEventListener("keydown", ({ key }) => {
     keys[key] = true;
+    keybinds[key]?.();
 })
 
 addEventListener("keyup", ({ key }) => {
