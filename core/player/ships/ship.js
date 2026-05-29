@@ -8,7 +8,7 @@ import { clamp, clampAngle } from "../../utils/math.js";
 import { keys } from "../../events/keys.js";
 import { sizeOf } from "../../utils/constants.js";
 
-import WeaponManager from "../../weapons/manager.js";
+import WeaponManager, { weaponManager } from "../../weapons/manager.js";
 import { spatial } from "../../world/spatialHash.js";
 import Explosion, { explosions } from "../prop/explosion.js";
 import { shapes } from "./shapes.js";
@@ -142,7 +142,7 @@ export default class Ship {
             this.angle = wrap(this.angle + this.speed * randomNum(-this.turnRate, this.turnRate) * 20, Math.PI * 2);
             this.lastTime = t;
         } else if (t - this.lastTime > randomNum(0, 60000) && fire) {
-            this.weapon = Math.floor(randomNum(0, WeaponManager.weaponTypes.length));
+            weaponManager.nextWeapon();
             this.fire();
         }
     }

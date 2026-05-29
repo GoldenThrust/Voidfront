@@ -24,55 +24,41 @@ class WorldManager {
             this.attachRandom();
         }
 
-        keybinds["q"] = () => {
-            this.previousWeapon();
+        keybinds["="] = () => {
+            world.zoom(1.1);
         }
-        keybinds["e"] = () => {
-            this.nextWeapon();
+        keybinds["-"] = () => {
+            world.zoom(0.9);
         }
     }
 
-    nextWeapon() {
-        const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) + 1;
 
-        const nextWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[0];
-
-        this.changeWeapon(nextWeapon);
-    }
-
-    previousWeapon() {
-        const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) - 1;
-        const previousWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[WeaponManager.weaponTypes.length - 1];
-
-        this.changeWeapon(previousWeapon);
-    }
-
-    changeWeapon(weapon) {
+    findAttachedShip() {
         if (this.attachedId === -1) {
-            ship.weapon = weapon;
+            return ship
         } else {
-            EnemyManager.ships[this.attachedId].weapon = weapon;
+            return EnemyManager.ships[this.attachedId];
         }
     }
 
     attachRandom() {
         this.attachedId = Math.floor(Math.random() * EnemyManager.ships.length);
-        world.attach({ obj: EnemyManager.ships[this.attachedId] });
+        world.attach(EnemyManager.ships[this.attachedId]);
     }
 
     attachNext() {
         this.attachedId = (this.attachedId + 1) % EnemyManager.ships.length;
-        world.attach({ obj: EnemyManager.ships[this.attachedId] });
+        world.attach(EnemyManager.ships[this.attachedId]);
     }
 
     attachPrevious() {
         this.attachedId = (this.attachedId - 1 + EnemyManager.ships.length) % EnemyManager.ships.length;
-        world.attach({ obj: EnemyManager.ships[this.attachedId] });
+        world.attach(EnemyManager.ships[this.attachedId]);
     }
 
     attachMainShip() {
         this.attachedId = -1;
-        world.attach({ obj: ship });
+        world.attach(ship);
     }
 }
 

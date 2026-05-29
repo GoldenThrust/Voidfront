@@ -75,7 +75,7 @@ export default class Weapon {
 
         for (const element of object) {
             if (weapon.ship === element || element?.state === "dead" 
-                || weapon === element) return;
+                || weapon === element || weapon.ship === element.ship) return;
                 weapon.closeObject(element)
                 if (isSeperatingAxes(element.getVertices(), vertices).collision) {
                     if (element instanceof Ship) {

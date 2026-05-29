@@ -6,8 +6,15 @@ import HeavyRailGun from "./heavyRailGun.js";
 import PlasmaCanon from "./plasmaCanon.js";
 import Mine from "./mine.js";
 import HomingMissile from "./HomingMissile.js";
+import { keybinds } from "../events/keybind.js";
+import { world } from "../world/world.js";
+import { worldManager } from "../world/manager.js";
 
 export default class WeaponManager {
+    constructor() {
+        this.#addKeybinds();
+    }
+
     static weaponTypes = [PulseCanon, GatlingGun, HeavyRailGun, PlasmaCanon, HomingMissile, Mine];
 
     static weapons = [];
@@ -34,6 +41,39 @@ export default class WeaponManager {
             WeaponManager.weapons.splice(index, 1);
         }
     }
+
+
+    #addKeybinds() {
+        keybinds["q"] = () => {
+            this.previousWeapon();
+        }
+        keybinds["e"] = () => {
+            this.nextWeapon();
+        }
+    }
+
+    nextWeapon() {
+        const ship = worldManager.findAttachedShip();
+        const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) + 1;
+
+        const nextWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[0];
+
+        this.changeWeapon(nextWeapon);
+    }
+
+    previousWeapon() {
+        const ship = worldManager.findAttachedShip();
+
+        const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) - 1;
+        const previousWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[WeaponManager.weaponTypes.length - 1];
+
+        this.changeWeapon(previousWeapon);
+    }
+
+    changeWeapon(weapon) {
+        worldManager.findAttachedShip().weapon = weapon;
+    }
 }
 
 // Todo: createWeapon pool
+export const weaponManager = new WeaponManager();

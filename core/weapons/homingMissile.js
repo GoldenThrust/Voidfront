@@ -15,7 +15,7 @@ export default class HomingMissile extends PlasmaCanon {
         super({
             name: "Homing Missile",
             speed: speed,
-            acceleration: 15000,
+            acceleration: 30000,
             x: x,
             y: y,
             width: 20,

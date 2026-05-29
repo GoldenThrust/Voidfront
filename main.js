@@ -1,3 +1,4 @@
+import WeaponManager from "./core/weapons/manager.js";
 
 import Ship, { destroyedShips } from "./core/player/ships/ship.js";
 import { world } from "./core/world/world.js";
@@ -13,7 +14,6 @@ import { ship } from "./core/player/ships/player.js";
 import EnemyManager from "./core/player/ships/enemies/manager.js";
 
 import Projectile from "./core/weapons/projectile.js";
-import WeaponManager from "./core/weapons/manager.js";
 
 import { spatial } from "./core/world/spatialHash.js";
 import Minature from "./core/weapons/minature.js";
@@ -21,7 +21,8 @@ import Minature from "./core/weapons/minature.js";
 async function init() {
     EnemyManager.init();
     await import("./core/world/manager.js");
-    world.attach({ obj: ship });
+    world.attach(ship);
+
     requestAnimationFrame(animate);
 }
 

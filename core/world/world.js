@@ -26,10 +26,12 @@ export default class World {
         this.angle = this.object.angle;
     }
 
-    attach({ obj = null, scale = null }) {
-        this.object = obj ?? this.object;
+    zoom(f = 1) {
+        this.scale = this.scale * f;
+    }
 
-        this.scale = scale ?? this.scale;
+    attach(obj) {
+        this.object = obj ?? this.object;
     }
 }
 
