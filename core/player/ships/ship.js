@@ -64,8 +64,8 @@ export default class Ship {
                 // draw life
                 const scaleLife = this.life / this.fullLife * this.width;
 
-                ctx.fillStyle = "springgreen"
-                ctx.strokeStyle = "springgreen"
+                ctx.fillStyle = "springgreen";
+                ctx.strokeStyle = "springgreen";
 
                 ctx.beginPath();
                 ctx.roundRect(-this.width / 2, -this.height, this.width, 3, 10);
@@ -141,9 +141,12 @@ export default class Ship {
         if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
             this.angle = wrap(this.angle + this.speed * randomNum(-this.turnRate, this.turnRate) * 20, Math.PI * 2);
             this.lastTime = t;
-        } else if (t - this.lastTime > randomNum(0, 60000) && fire) {
-            weaponManager.nextWeapon();
+        } else if (t - this.lastTime > randomNum(0, 60000) || fire) {
             this.fire();
+        }
+
+        if (t - this.lastTime > randomNum(0, 20000)) {
+            weaponManager.nextWeapon();
         }
     }
 

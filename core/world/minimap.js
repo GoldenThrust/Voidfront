@@ -114,7 +114,7 @@ export default class Minimap {
 
         this.drawMainShip(ship.x, ship.y, ship.angle, this.canvas.width / 40, "#84d0ff");
         this.ctx.globalAlpha = 1;
-        this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
+        // this.ctx.globalAlpha = Math.sin((performance.now() % captureDuration) / captureDuration * Math.PI);
 
         for (const weapon of WeaponManager.weapons) {
             this.drawWeapon(weapon.x, weapon.y, weapon.height, weapon.angle, 1, weapon.ship instanceof PlayerShip ? "yellow" : "rgb(255, 0, 0)");

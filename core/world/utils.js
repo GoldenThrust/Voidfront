@@ -28,6 +28,16 @@ export function toroidalAngle(x1, y1, x2, y2, space = world) {
     return Math.atan2(dy, dx);
 }
 
+export function toroidalDirection(x1, y1, x2, y2, angle, offset = 0, space = world) {
+    const targetAngle = toroidalAngle(x1, y1, x2, y2, world);
+
+    let diff = (targetAngle + angle) + offset;
+
+    diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+
+    return diff;
+}
+
 export function worldToScreen(wx, wy, space = world) {
     const dx = toroidalDelta(space.x, wx, space.width);
     const dy = toroidalDelta(space.y, wy, space.height);

@@ -73,29 +73,31 @@ export default class Weapon {
     static nearBy(weapon, vertices, x, y) {
         const object = spatial.query(x, y, Math.ceil(weapon.height / spatial.cellSize) + 1);
 
+
         for (const element of object) {
-            if (weapon.ship === element || element?.state === "dead" 
-                || weapon === element || weapon.ship === element.ship) return;
-                weapon.closeObject(element)
-                if (isSeperatingAxes(element.getVertices(), vertices).collision) {
-                    if (element instanceof Ship) {
-                        element.life = Math.max(0, element.life - weapon.damage);
-                        if (element.life <= 0) {
-                            element.destroy();
-                            weapon.ship.killScore++;
-                        }
-                    } else {
+            if ((element instanceof Ship && (weapon.ship === element || element.state === "dead")) || (element instanceof Weapon && (weapon.ship === element.ship || weapon === element))) continue;
+
+
+            weapon.closeObject(element)
+            if (isSeperatingAxes(element.getVertices(), vertices).collision) {
+                if (element instanceof Ship) {
+                    element.life = Math.max(0, element.life - weapon.damage);
+                    if (element.life <= 0) {
                         element.destroy();
+                        weapon.ship.killScore++;
                     }
+                } else {
+                    element.destroy();
+                }
 
-                    weapon.acceleration *= 0.8;
-                    weapon.range *= 0.8;
+                weapon.acceleration *= 0.8;
+                weapon.range *= 0.8;
 
 
-                    if (!(--weapon.penetration)) {
-                        weapon.colide();
-                        weapon.destroy();
-                    }
+                if (!(--weapon.penetration)) {
+                    weapon.colide();
+                    weapon.destroy();
+                }
             }
         }
     }
