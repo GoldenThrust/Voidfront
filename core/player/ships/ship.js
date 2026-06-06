@@ -22,7 +22,7 @@ export default class Ship {
         this.x = x;
         this.y = y;
         this.speed = 0;
-        this.acceleration = clamp(acceleration, 0, 1000);
+        this.acceleration = clamp(acceleration, 0, 1000) * 2;
         this.width = width;
         this.height = height;
         this.angle = angle;

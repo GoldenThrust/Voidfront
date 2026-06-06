@@ -27,7 +27,7 @@ export default class Miner extends EnemyShip {
                 this.AI({
                     idleDistance: dist > 10 ** 12, fleeCondition: this.weaponState === "hot", seekCondition: (this.state === "flee" && dist > 10 ** 7) || this.state !== "flee", fireCondition: {
                         func: (delta) => Math.abs(delta + Math.PI) < Math.PI / 2,
-                        others: dist < 100000,
+                        others: dist < 500000,
                     }
                 })
             }, x: this.x, y: this.y, margin: {

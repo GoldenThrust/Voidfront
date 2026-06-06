@@ -45,7 +45,7 @@ export default class EnemyShip extends Ship {
         const beta = alpha + Math.PI;
 
         if (Math.abs(alpha) < Math.PI / 4 || Math.abs(beta) < Math.PI / 4 || dist < 6 ** 6) {
-            this.angle -= clamp(beta, (this.speed * this.turnRate)) * 0.5;
+            this.angle -= clamp(beta, (this.speed * this.turnRate)) * 0.25;
         };
     }
 

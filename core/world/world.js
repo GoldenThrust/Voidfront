@@ -41,5 +41,5 @@ export const world = new World({
     y: 0,
     width: worldSize.width,
     height: worldSize.height,
-    scale: 0.5,
+    scale: 0.7,
 })
