@@ -6,10 +6,9 @@ import { ship } from "../player.js";
 import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
-const rTD = (r) => 180 / Math.PI * r;
 export default class FleetDrone extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 40, height: 40, angle, acceleration: 250, color: "purple", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 1000, life: 100, weapon: PulseCanon });
+        super({ x, y, width: 40, height: 40, angle, acceleration: 250, color: "springgreen", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 1000, life: 100, weapon: PulseCanon });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }
@@ -30,8 +29,8 @@ export default class FleetDrone extends EnemyShip {
                     }
                 })
             }, x: this.x, y: this.y, margin: {
-                width: 3500,
-                height: 3500
+                width: 4000,
+                height: 4000
             }
         })
     }

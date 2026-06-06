@@ -1,13 +1,21 @@
 import { randomNum } from "../../utils/random.js";
+import { toroidalDirection } from "../../world/utils.js";
 import { world } from "../../world/world.js";
+import EnemyManager from "./enemies/manager.js";
 import Ship from "./ship.js";
 
 export default class PlayerShip extends Ship {
     constructor({ x, y, width, height, angle, acceleration, color = "red", name = "Player", controllable = true, maxWeaponHeat = 10000 }) {
-        super({ x, y, width, height, angle, acceleration, color, name, maxWeaponHeat, controllable, life: 1000 });
+        super({ x, y, width, height, angle, acceleration, color, name, maxWeaponHeat, controllable, life: 10000 });
 
         if (this.controllable === false)
             this.state = "idle";
+    }
+
+    update(t, dt) {
+        super.update(t, dt);
+        // const diff = toroidalDirection(EnemyManager.ships[0].x, EnemyManager.ships[0].y, this.x, this.y, this.angle, -Math.PI/2);
+        // console.log(diff, Math.PI/4)
     }
 }
 

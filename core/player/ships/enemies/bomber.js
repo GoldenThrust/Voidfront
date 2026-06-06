@@ -1,14 +1,14 @@
 import { clamp } from "../../../utils/math.js";
+import PlasmaCanon from "../../../weapons/plasmaCanon.js";
 import { canvas } from "../../../world/canvas.js";
 import { toroidalAngle, toroidalDistance, updateWrapped } from "../../../world/utils.js";
 import { ship } from "../player.js";
 import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
-const rTD = (r) => 180 / Math.PI * r;
-export default class FleetDrone extends EnemyShip {
+export default class Bomber extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 40, height: 40, angle, acceleration: 250, color: "purple", vertices: shapes[1], name: "Fleet Drone", maxWeaponHeat: 1000, life: 100, weapon: PulseCanon });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 300, color: "blue", vertices: shapes[4], name: "Bomber Drone", maxWeaponHeat: 10000, life: 200, weapon: PlasmaCanon });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }
@@ -20,14 +20,14 @@ export default class FleetDrone extends EnemyShip {
                 const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
                 super.update(t, dt);
                 this.AI({
-                    idleDistance: dist > 10 ** 10, fleeCondition: dist < 45000, seekCondition: (this.state === "flee" && dist > 7 ** 7) || this.state !== "flee", fireCondition: {
-                        func: (delta) => Math.abs(delta) < Math.PI / 4,
-                        others: dist < 3000000,
+                    idleDistance: dist > 10 ** 12, fleeCondition: dist < 40000, seekCondition: (this.state === "flee" && dist > 10 ** 7) || this.state !== "flee", fireCondition: {
+                        func: (delta) => Math.abs(delta) < Math.PI / 6,
+                        others: dist < 5000000,
                     }
                 })
             }, x: this.x, y: this.y, margin: {
-                width: 3500,
-                height: 3500
+                width: 4000,
+                height: 4000
             }
         })
     }

@@ -6,10 +6,9 @@ import { ship } from "../player.js";
 import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
-const rTD = (r) => 180 / Math.PI * r;
 export default class Tormenter extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 40, height: 40, angle, acceleration: 300, color: "indigo", vertices: shapes[2], name: "Tormenter Drone", maxWeaponHeat: 1000, life: 100, weapon: GatlingGun });
+        super({ x, y, width: 50, height: 40, angle, acceleration: 300, color: "pink", vertices: shapes[2], name: "Tormenter Drone", maxWeaponHeat: 3000, life: 100, weapon: GatlingGun });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }
@@ -27,8 +26,8 @@ export default class Tormenter extends EnemyShip {
                     }
                 })
             }, x: this.x, y: this.y, margin: {
-                width: 3500,
-                height: 3500
+                width: 4000,
+                height: 4000
             }
         })
     }

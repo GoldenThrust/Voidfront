@@ -33,10 +33,20 @@ export default class EnemyShip extends Ship {
         return diff;
     }
 
-    closeWeapon(weapon, diff) {
-        if (Math.abs(diff) < Math.PI / 8) {
+    // respond to close Weapon
+    // alpha: weapon face ship
+    // beta: weapon back ship
+    // dist: dist from ship
+    closeWeapon(weapon, dist, alpha) {
+        if (Math.abs(alpha) < Math.PI / 8) {
             this.fire();
         }
+
+        const beta = alpha + Math.PI;
+
+        if (Math.abs(alpha) < Math.PI / 4 || Math.abs(beta) < Math.PI / 4 || dist < 6 ** 6) {
+            this.angle -= clamp(beta, (this.speed * this.turnRate)) * 0.5;
+        };
     }
 
     nearByWeapon() {
@@ -47,21 +57,16 @@ export default class EnemyShip extends Ship {
                 const dist = toroidalDistance(weapon.x, weapon.y, this.x, this.y);
                 if (dist > 8 ** 8) continue;
 
-                const diff = toroidalDirection(weapon.x, weapon.y, this.x, this.y, this.angle, Math.PI / 2);
+                const face = toroidalDirection(weapon.x, weapon.y, this.x, this.y, this.angle, -Math.PI / 2);
 
-                if (Math.abs(diff) < Math.PI / 4 || dist < 6 ** 6) {
-                    this.angle -= clamp(diff, (this.speed * this.turnRate)) * 0.5;
-                    this.color = "yellow";
-                };
-
-                this.closeWeapon(weapon, diff);
+                this.closeWeapon(weapon, dist, face);
             }
         }
     }
 
     update(t, dt) {
         super.update(t, dt);
-        // this.speed = this.speed + (this.acceleration * dt);
+        this.speed = this.speed + (this.acceleration * dt);
 
         this.nearByWeapon();
     }
@@ -70,16 +75,13 @@ export default class EnemyShip extends Ship {
 
         if (idleDistance) {
             this.state = "idle"
-            this.color = "blue";
             this.acceleration = this.seekAcceleration;
         } else if (fleeCondition) {
             this.state = "flee";
-            this.color = "springgreen";
             this.acceleration = this.fleeAcceleration
         } else if (seekCondition) {
             this.acceleration = this.seekAcceleration;
             this.state = "seek";
-            this.color = "red";
         }
 
         if (["seek", "flee"].includes(this.state)) {
