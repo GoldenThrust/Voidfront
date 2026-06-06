@@ -21,7 +21,7 @@ function boxDistance(r1, r2) {
   return dx * dx + dy * dy;
 }
 
-function boxCircleDistance(box, circle) {
+export function boxCircleDistance(box, circle) {
   const cx = Math.max(box.x, Math.min(circle.x, box.x + box.w));
   const cy = Math.max(box.y, Math.min(circle.y, box.y + box.h));
 

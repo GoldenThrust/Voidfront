@@ -218,7 +218,8 @@ mirrorBtn.addEventListener("click", () => {
         x: (2 * maxX) - p.x,
     }));
 
-    newPoints = newPoints.reverse().pop();
+    newPoints = newPoints.reverse();
+    newPoints.pop();
 
     vertices.push(...newPoints);
 })

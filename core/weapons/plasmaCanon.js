@@ -6,7 +6,7 @@ import Minature from "./minature.js";
 import WeaponManager from "./manager.js";
 
 export default class PlasmaCanon extends Projectile {
-    constructor({ x, y, angle, ship, color, acceleration = 50000, width = 20, height = 50,  damage = 10, range = 5000, speed = 10, fireRate = 0.002, energyCost = 1, }) {
+    constructor({ x, y, angle, ship, color, acceleration = 25000, width = 20, height = 50,  damage = 10, range = 5000, speed = 10, fireRate = 0.002, energyCost = 1, }) {
         super({
             name: "Plasma Canon",
             speed: speed,

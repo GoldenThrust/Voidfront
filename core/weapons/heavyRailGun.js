@@ -7,7 +7,7 @@ export default class HeavyRailGun extends Projectile {
         super({
             name: "Heavy RailGun",
             speed: speed * 4,
-            acceleration: 100000,
+            acceleration: 50000,
             x: x,
             y: y,
             width: 20,

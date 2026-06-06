@@ -85,11 +85,13 @@ export default class Ship {
     update(t, dt) {
         if (this.controllable) {
             if (keys["ArrowLeft"]) {
-                this.angle = wrap(this.angle + this.speed * this.turnRate, Math.PI * 2);
+                this.angle = wrap(this.angle + 0.01, Math.PI * 2);
+                // this.angle = wrap(this.angle + this.speed * this.turnRate, Math.PI * 2);
             }
 
             if (keys["ArrowRight"]) {
-                this.angle = wrap(this.angle - this.speed * this.turnRate, Math.PI * 2);
+                this.angle = wrap(this.angle - 0.01, Math.PI * 2);
+                // this.angle = wrap(this.angle - this.speed * this.turnRate, Math.PI * 2);
             }
 
 
@@ -119,7 +121,6 @@ export default class Ship {
         this.y = wrap(this.y - Math.cos(this.angle) * (this.speed * dt), world.height);
 
         this.trail.update(this.x, this.y, this.speed);
-
 
         // weapon update
         if (this.cooldown >= 0) {

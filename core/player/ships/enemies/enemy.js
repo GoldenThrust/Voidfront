@@ -33,7 +33,10 @@ export default class EnemyShip extends Ship {
         return diff;
     }
 
-    closeWeapon(weapon) {
+    closeWeapon(weapon, diff) {
+        if (Math.abs(diff) < Math.PI / 8) {
+            this.fire();
+        }
     }
 
     nearByWeapon() {
@@ -42,28 +45,28 @@ export default class EnemyShip extends Ship {
         for (const weapon of object) {
             if (weapon instanceof Weapon && weapon.ship !== this) {
                 const dist = toroidalDistance(weapon.x, weapon.y, this.x, this.y);
-                if (dist > 8**8) continue;
+                if (dist > 8 ** 8) continue;
 
                 const diff = toroidalDirection(weapon.x, weapon.y, this.x, this.y, this.angle, Math.PI / 2);
 
-                if (diff < Math.PI/4 || dist < 6 ** 6) {
+                if (Math.abs(diff) < Math.PI / 4 || dist < 6 ** 6) {
                     this.angle -= clamp(diff, (this.speed * this.turnRate)) * 0.5;
                     this.color = "yellow";
-
-                    this.closeWeapon(weapon);
                 };
+
+                this.closeWeapon(weapon, diff);
             }
         }
     }
 
     update(t, dt) {
         super.update(t, dt);
-        this.speed = this.speed + (this.acceleration * dt);
+        // this.speed = this.speed + (this.acceleration * dt);
 
         this.nearByWeapon();
     }
 
-    AI({ idleDistance, fleeCondition, seekCondition, fireCondition }) {
+    AI({ idleDistance, fleeCondition, seekCondition, fireCondition, }) {
 
         if (idleDistance) {
             this.state = "idle"
@@ -81,7 +84,7 @@ export default class EnemyShip extends Ship {
 
         if (["seek", "flee"].includes(this.state)) {
             const delta = this.follow(ship);
-            if (delta < fireCondition.angle / 2 && fireCondition.others) {
+            if (fireCondition.others && fireCondition.func(delta)) {
                 this.fire();
             }
         }

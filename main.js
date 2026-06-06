@@ -92,6 +92,7 @@ async function animate(t) {
     ctx.fillStyle = "white";
     ctx.fillText(`Ships Alive: ${EnemyManager.ships.length} - Destroyed: ${destroyedShips.length} Kill: ${ship.killScore} Weapon name: ${ship.weapon.name} heat: ${Math.ceil((ship.heat / ship.maxHeat) * 100)}`, 10, 20);
 
+
     if (ship.life > 0 && EnemyManager.ships.length > 0)
         requestAnimationFrame(animate);
     else {
@@ -100,7 +101,7 @@ async function animate(t) {
         ctx.font = '50px Arial';
 
         const { width } = ctx.measureText(text);
-        ctx.fillText(text, (canvas.width - width) / 2, canvas.height/2);
+        ctx.fillText(text, (canvas.width - width) / 2, canvas.height / 2);
     }
 }
 

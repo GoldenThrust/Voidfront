@@ -8,7 +8,7 @@ export default class GatlingGun extends Projectile {
         super({
             name: "Gatling Gun",
             speed: speed,
-            acceleration: 100000,
+            acceleration: 50000,
             x: x,
             y: y,
             width: 10,

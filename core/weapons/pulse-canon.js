@@ -7,7 +7,7 @@ export default class PulseCanon extends Projectile {
         super({
             name: "Pulse Canon",
             speed: speed,
-            acceleration: 100000,
+            acceleration: 500,
             x: x,
             y: y,
             width: 10,
