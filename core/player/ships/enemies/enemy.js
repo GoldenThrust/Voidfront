@@ -18,7 +18,7 @@ export default class EnemyShip extends Ship {
         EnemyManager.destroy(this);
     }
 
-    follow(obj, hardTurn) {
+    follow(obj) {
         let tangent = 0;
         if (this.state === "flee") {
             tangent = Math.PI / 2;
@@ -28,7 +28,7 @@ export default class EnemyShip extends Ship {
 
         const diff = toroidalDirection(obj.x, obj.y, this.x, this.y, this.angle, tangent);
 
-        this.angle -= clamp(diff, (this.speed * this.turnRate)) * (hardTurn ? 1 : 0.5);
+        this.angle -= clamp(diff, (this.speed * this.turnRate));
 
         return diff;
     }
@@ -38,15 +38,14 @@ export default class EnemyShip extends Ship {
     // beta: weapon back ship
     // dist: dist from ship
     closeWeapon(weapon, dist, alpha) {
-        if (Math.abs(alpha) < Math.PI / 8) {
+        if (dist > 7 ** 7) return;
+        if (Math.abs(alpha - Math.PI / 2) < Math.PI / 16) {
             this.fire();
         }
 
-        const beta = alpha + Math.PI;
+        const beta = alpha + Math.PI / 2;
 
-        if (Math.abs(alpha) < Math.PI / 4 || Math.abs(beta) < Math.PI / 4 || dist < 6 ** 6) {
-            this.angle -= clamp(beta, (this.speed * this.turnRate)) * 0.25;
-        };
+        this.angle -= clamp(beta, (this.speed * this.turnRate * 0.5));
     }
 
     nearByWeapon() {
@@ -57,9 +56,9 @@ export default class EnemyShip extends Ship {
                 const dist = toroidalDistance(weapon.x, weapon.y, this.x, this.y);
                 if (dist > 8 ** 8) continue;
 
-                const face = toroidalDirection(weapon.x, weapon.y, this.x, this.y, this.angle, -Math.PI / 2);
+                const alpha = toroidalDirection(weapon.x, weapon.y, this.x, this.y, this.angle);
 
-                this.closeWeapon(weapon, dist, face);
+                this.closeWeapon(weapon, dist, alpha);
             }
         }
     }
@@ -72,7 +71,6 @@ export default class EnemyShip extends Ship {
     }
 
     AI({ idleDistance, fleeCondition, seekCondition, fireCondition, }) {
-
         if (idleDistance) {
             this.state = "idle"
             this.acceleration = this.seekAcceleration;

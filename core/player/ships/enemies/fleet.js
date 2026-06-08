@@ -13,9 +13,6 @@ export default class FleetDrone extends EnemyShip {
         this.fleeAcceleration = this.acceleration * 0.9;
     }
 
-    closeWeapon(weapon, diff) {
-    }
-
     update(t, dt) {
         // const targetAngle = toroidalAngle(ship.x, ship.y, this.x, this.y);
         updateWrapped({
@@ -23,7 +20,7 @@ export default class FleetDrone extends EnemyShip {
                 const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
                 super.update(t, dt);
                 this.AI({
-                    idleDistance: dist > 10 ** 10, fleeCondition: dist < 45000, seekCondition: (this.state === "flee" && dist > 7 ** 7) || this.state !== "flee", fireCondition: {
+                    idleDistance: dist > 10 ** 10, fleeCondition: dist < 80000, seekCondition: (this.state === "flee" && dist > 7 ** 7) || this.state !== "flee", fireCondition: {
                         func: (delta) => Math.abs(delta) < Math.PI / 8,
                         others: dist < 3000000,
                     }

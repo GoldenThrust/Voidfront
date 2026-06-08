@@ -13,10 +13,17 @@ export default class Miner extends EnemyShip {
         this.fleeAcceleration = this.acceleration * 0.9;
     }
 
-    
-    closeWeapon(weapon, diff) {
-    }
 
+    closeWeapon(weapon, dist, alpha) {
+       if (dist > 7 ** 7) return;
+        if (Math.abs(alpha + Math.PI / 2) < Math.PI / 8) {
+            this.fire();
+        }
+
+        const beta = alpha + Math.PI / 2;
+
+        this.angle -= clamp(beta, (this.speed * this.turnRate));
+    }
 
     update(t, dt) {
         // const targetAngle = toroidalAngle(ship.x, ship.y, this.x, this.y);

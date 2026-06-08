@@ -3,7 +3,7 @@ import { createVerticesPath, drawVertices, drawVerticesPath, tranformVertices } 
 import { drawWrapped, inScreen, updateWrapped, worldToScreen, wrap } from "../../world/utils.js";
 import { world } from "../../world/world.js";
 import { randomNum } from "../../utils/random.js";
-import Trail from "../object/trail.js";
+import Trail from "../prop/trail.js";
 import { clamp, clampAngle } from "../../utils/math.js";
 import { keys } from "../../events/keys.js";
 import { sizeOf } from "../../utils/constants.js";
@@ -22,7 +22,7 @@ export default class Ship {
         this.x = x;
         this.y = y;
         this.speed = 0;
-        this.acceleration = clamp(acceleration, 0, 1000) * 2;
+        this.acceleration = clamp(acceleration, 0, 1000);
         this.width = width;
         this.height = height;
         this.angle = angle;

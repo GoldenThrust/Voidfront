@@ -5,12 +5,12 @@ import { world } from "../../world/world.js";
 
 export default class Explosion {
     constructor(x, y, intensity = 100) {
-        this.particles = Array.from(new Array(Math.ceil(intensity/20))).map((p) => ({ x, y, vx: randomNum(-intensity, intensity) / 10, vy: randomNum(-intensity, intensity) / 10, radius: randomNum(0.1, 2) }));
-        this.life = 20;
+        this.particles = Array.from(new Array(Math.ceil(intensity))).map((p) => ({ x, y, vx: randomNum(-intensity, intensity) / 20, vy: randomNum(-intensity, intensity) / 20, radius: randomNum(0.1, 2) }));
+        this.life = 50;
     }
 
     render() {
-        ctx.fillStyle = "yellow";
+        ctx.fillStyle = "red";
         for (const p of this.particles) {
             drawWrapped({
                 fn: () => {

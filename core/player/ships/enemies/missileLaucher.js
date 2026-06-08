@@ -20,7 +20,7 @@ export default class MissileLaucher extends EnemyShip {
                 const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
                 super.update(t, dt);
                 this.AI({
-                    idleDistance: dist > 10 ** 12, fleeCondition: dist < 40000, seekCondition: (this.state === "flee" && dist > 10 ** 7) || this.state !== "flee", fireCondition: {
+                    idleDistance: dist > 10 ** 12, fleeCondition: dist < 80000, seekCondition: (this.state === "flee" && dist > 10 ** 7) || this.state !== "flee", fireCondition: {
                         func: (delta) => Math.abs(delta) < Math.PI / 2,
                         others: dist < 5000000,
                     }

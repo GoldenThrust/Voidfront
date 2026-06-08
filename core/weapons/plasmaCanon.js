@@ -6,9 +6,9 @@ import Minature from "./minature.js";
 import WeaponManager from "./manager.js";
 
 export default class PlasmaCanon extends Projectile {
-    constructor({ x, y, angle, ship, color, acceleration = 25000, width = 20, height = 50,  damage = 10, range = 5000, speed = 10, fireRate = 0.002, energyCost = 1, }) {
+    constructor({ x, y, angle, ship, color, name = "Plasma Canon", acceleration = 25000, width = 20, height = 50, damage = 10, range = 5000, speed = 10, fireRate = 0.002, energyCost = 3000, }) {
         super({
-            name: "Plasma Canon",
+            name,
             speed: speed,
             acceleration,
             x: x,
@@ -19,7 +19,7 @@ export default class PlasmaCanon extends Projectile {
             damage,
             range,
             fireRate,
-            energyCost: 3000,
+            energyCost,
             ship,
             color
         });
@@ -32,13 +32,13 @@ export default class PlasmaCanon extends Projectile {
                 x: this.x - Math.sin(this.angle) * this.width,
                 y: this.y - Math.cos(this.angle) * this.height,
                 angle: randomNum(-Math.PI, Math.PI),
-                speed: randomNum(radius/2, radius),
+                speed: randomNum(radius / 2, radius),
                 ship: this.ship,
-                range: randomNum(radius * 0.1, radius/2),
+                range: randomNum(radius * 0.1, radius / 2),
                 color: "yellow"
             }
 
-            
+
             WeaponManager.fire(Minature, prop, true)
         }
     }

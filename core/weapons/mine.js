@@ -7,7 +7,7 @@ import Weapon from "./weapon.js";
 export default class Mine extends Weapon {
     constructor({ x, y, angle, ship, color, speed = 10 }) {
         super({
-            name: "Pulse Canon",
+            name: "Mine",
             speed: speed,
             acceleration: 10000,
             x: x,

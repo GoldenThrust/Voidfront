@@ -20,8 +20,8 @@ export default class Sniper extends EnemyShip {
                 const dist = toroidalDistance(this.x, this.y, ship.x, ship.y);
                 super.update(t, dt);
                 this.AI({
-                    idleDistance: dist > 11 ** 11, fleeCondition: dist < 50000, seekCondition: (this.state === "flee" && dist > 8 ** 10) || this.state !== "flee", fireCondition: {
-                        func: (delta) => Math.abs(delta) < Math.PI / 8,
+                    idleDistance: dist > 11 ** 11, fleeCondition: dist < 150000, seekCondition: (this.state === "flee" && dist > 8 ** 10) || this.state !== "flee", fireCondition: {
+                        func: (delta) => Math.abs(delta) < Math.PI / 32,
                         others: dist < 10000000,
                     }
                 })
