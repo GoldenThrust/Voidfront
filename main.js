@@ -10,7 +10,7 @@ import { clamp } from "./core/utils/math.js";
 import { explosions } from "./core/player/prop/explosion.js";
 
 
-import { ship } from "./core/player/ships/player.js";
+import PlayerShip, { ship } from "./core/player/ships/player.js";
 import EnemyManager from "./core/player/ships/enemies/manager.js";
 
 import Projectile from "./core/weapons/projectile.js";
@@ -22,11 +22,12 @@ import { assets, buildAssets } from "./core/assets/main.js";
 async function init() {
     await buildAssets();
     console.log("Assets loaded", assets);
-
-    EnemyManager.init();
     await import("./core/world/manager.js");
-    world.attach(ship);
 
+    PlayerShip.spawn(world.x, world.y);
+    EnemyManager.init();
+    
+    world.attach(ship);
     requestAnimationFrame(animate);
 }
 

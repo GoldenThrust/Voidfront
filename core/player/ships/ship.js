@@ -18,7 +18,7 @@ import PulseCanon from "../../weapons/pulse-canon.js";
 const WORLD_MARGIN = world.width / 200;
 
 export default class Ship {
-    constructor({ x, y, width, height, angle, weapon = PulseCanon, acceleration = 100, turnRate = -1, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
+    constructor({ x, y, width, height, angle, img, flameImg, weapon = PulseCanon, acceleration = 100, turnRate = -1, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -30,6 +30,9 @@ export default class Ship {
         this.turnRate = turnRate === -1 ? (1 / (this.acceleration * 1000)) : turnRate;
 
         this.name = name;
+
+        this.img = img;
+        this.flameImg = flameImg;
 
         this.dampSpeed = 0.999;
 
@@ -62,20 +65,29 @@ export default class Ship {
         drawWrapped({
             fn: () => {
                 // draw life
-                const scaleLife = this.life / this.fullLife * this.width;
+                // const scaleLife = this.life / this.fullLife * this.width;
 
-                ctx.fillStyle = "springgreen";
-                ctx.strokeStyle = "springgreen";
+                // ctx.fillStyle = "springgreen";
+                // ctx.strokeStyle = "springgreen";
 
-                ctx.beginPath();
-                ctx.roundRect(-this.width / 2, -this.height, this.width, 3, 10);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.roundRect(-this.width / 2, -this.height, scaleLife, 3, 10);
-                ctx.fill();
+                // ctx.beginPath();
+                // ctx.roundRect(-this.width / 2, -this.height, this.width, 3, 10);
+                // ctx.stroke();
+                // ctx.beginPath();
+                // ctx.roundRect(-this.width / 2, -this.height, scaleLife, 3, 10);
+                // ctx.fill();
                 ctx.rotate(-this.angle);
 
-                drawVerticesPath(this.path2D, this.color);
+                if (this.img && this.flameImg) {
+                    ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
+                    if (this.speed > 50) {
+                        ctx.globalAlpha = clamp(this.speed / 200, 0, 1);
+                        ctx.drawImage(this.flameImg, -this.width / 2, -this.height / 2 + this.height, this.width, this.height);
+                        ctx.globalAlpha = 1;
+                    }
+                } else {
+                    drawVerticesPath(this.path2D, this.color);
+                }
             }, x: this.x, y: this.y, margin: {
                 width: 200, height: 200
             }

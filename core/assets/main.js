@@ -48,9 +48,9 @@ export function loadAudio(src) {
 }
 
 const loaders = {
-    image: loadImage,
-    video: loadVideo,
-    audio: loadAudio,
+    images: loadImage,
+    videos: loadVideo,
+    audios: loadAudio,
 }
 
 

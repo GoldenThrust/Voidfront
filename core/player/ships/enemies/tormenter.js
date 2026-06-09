@@ -1,3 +1,4 @@
+import { assets } from "../../../assets/main.js";
 import { clamp } from "../../../utils/math.js";
 import GatlingGun from "../../../weapons/gatlingGun.js";
 import { canvas } from "../../../world/canvas.js";
@@ -8,7 +9,7 @@ import EnemyShip from "./enemy.js";
 
 export default class Tormenter extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 50, height: 40, angle, acceleration: 300, color: "pink", vertices: shapes[2], name: "Tormenter Drone", maxWeaponHeat: 3000, life: 100, weapon: GatlingGun });
+        super({ x, y, width: 50, height: 40, angle, acceleration: 300, color: "pink", vertices: shapes[2], name: "Tormenter Drone", maxWeaponHeat: 3000, life: 100, weapon: GatlingGun, img: assets?.images?.tormentership, flameImg: assets?.images?.flame6 });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

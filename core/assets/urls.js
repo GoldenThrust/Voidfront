@@ -1,5 +1,5 @@
 export const assetsUrl = {
-    image: {
+    images: {
         "explosionflame": './explosion/1.png',
         "flame1": './flames/1.png',
         "flame2": './flames/2.png',
@@ -11,7 +11,7 @@ export const assetsUrl = {
         "mainship": './ships/main.png',
         "minership": './ships/miner.png',
         "missileLauchership": './ships/missileLaucher.png', 
-        "plasmaship": './ships/plasma.png',
+        "bombership": './ships/bomber.png',
         "snipership": './ships/sniper.png',
         "tormentership": './ships/tormenter.png',
         "heavyrailgun": './weapons/heavyrailgun.png',
@@ -21,7 +21,7 @@ export const assetsUrl = {
         "plasma": './weapons/plasma.png',
         "projectile": './weapons/projectile.png',
     },
-    video: {},
-    audio: {}
+    videos: {},
+    audios: {}
 }
  
