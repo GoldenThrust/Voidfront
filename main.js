@@ -17,10 +17,11 @@ import Projectile from "./core/weapons/projectile.js";
 
 import { spatial } from "./core/world/spatialHash.js";
 import Minature from "./core/weapons/minature.js";
-import { buildAssets } from "./core/assets/main.js";
+import { assets, buildAssets } from "./core/assets/main.js";
 
 async function init() {
     await buildAssets();
+    console.log("Assets loaded", assets);
 
     EnemyManager.init();
     await import("./core/world/manager.js");
