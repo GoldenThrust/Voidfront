@@ -1,3 +1,4 @@
+import { assets } from "../assets/main.js";
 import { randomNum } from "../utils/random.js";
 import WeaponManager from "./manager.js";
 import Minature from "./minature.js";
@@ -21,7 +22,8 @@ export default class Mine extends Weapon {
             energyCost: ship.maxHeat + 100,
             ship,
             color,
-            vertices: shapes[1]
+            vertices: shapes[1],
+            img: assets?.images?.mine
         });
 
         this.duration = 1000;

@@ -8,6 +8,7 @@ import PlasmaCanon from "./plasmaCanon.js";
 import Ship from "../player/ships/ship.js";
 import Mine from "./mine.js";
 import Asteroid from "../world/object/asteroid/asteroid.js";
+import { assets } from "../assets/main.js";
 
 
 export default class HomingMissile extends PlasmaCanon {
@@ -18,15 +19,16 @@ export default class HomingMissile extends PlasmaCanon {
             acceleration: 15000,
             x: x,
             y: y,
-            width: 20,
-            height: 60,
+            width: 15,
+            height: 50,
             angle: angle,
             damage: 5,
             range: 25000,
             fireRate: 0.005,
             energyCost: 1000,
             ship,
-            color
+            color,
+            img: assets?.images?.homingmissile
         });
 
         this.target = null;

@@ -1,3 +1,4 @@
+import { assets } from "../assets/main.js";
 import { worldSize } from "../utils/constants.js";
 import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
@@ -10,8 +11,8 @@ export default class HeavyRailGun extends Projectile {
             acceleration: 50000,
             x: x,
             y: y,
-            width: 20,
-            height: 90,
+            width: 10,
+            height: 70,
             angle: angle,
             damage: 100,
             range: 50000,
@@ -19,7 +20,8 @@ export default class HeavyRailGun extends Projectile {
             energyCost: 1000,
             penetration: 5,
             ship,
-            color
+            color,
+            img: assets?.images?.heavyrailgun
         });
     }
 

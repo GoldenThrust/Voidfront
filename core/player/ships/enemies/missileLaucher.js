@@ -9,7 +9,7 @@ import EnemyShip from "./enemy.js";
 
 export default class MissileLaucher extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 400, color: "gold", vertices: shapes[6], name: "Missile Laucher", maxWeaponHeat: 3000, life: 150, weapon: HomingMissile, img: assets?.images?.missilelaunchership, flameImg: assets?.images?.flame5 });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 400, color: "gold", vertices: shapes[6], name: "Missile Laucher", maxWeaponHeat: 3000, life: 150, weapon: HomingMissile, img: assets?.images?.missilelauchership, flameImg: assets?.images?.flame5 });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

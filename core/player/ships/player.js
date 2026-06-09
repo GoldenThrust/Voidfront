@@ -21,6 +21,6 @@ export default class PlayerShip extends Ship {
         const spawnDistance = 200000;
         const spawnX = randomNum(x - spawnDistance, x + spawnDistance);
         const spawnY = randomNum(y - spawnDistance, y + spawnDistance);
-        ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 30, height: 30, color: "#84d0ff", acceleration: 200 });
+        ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 50, height: 50, color: "#84d0ff", acceleration: 200, controllable: true });
     }    
 }    

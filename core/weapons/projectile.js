@@ -11,8 +11,8 @@ import { shapes } from "./shapes.js";
 import Weapon from "./weapon.js";
 
 export default class Projectile extends Weapon {
-    constructor({ name, acceleration, speed, x, y, width, height, angle, damage, fireRate, range, energyCost, ship, penetration = 1, vertices = shapes[0], color = "red" }, force) {
-        super({ name, type: "projectile", x, y, width, height, acceleration, speed, angle, damage, range, energyCost, fireRate, ship, vertices, color }, force);
+    constructor({ name, acceleration, speed, x, y, width, height, angle, damage, fireRate, range, energyCost, ship, penetration = 1, vertices = shapes[0], color = "red", img }, force) {
+        super({ name, type: "projectile", x, y, width, height, acceleration, speed, angle, damage, range, energyCost, fireRate, ship, vertices, color, img }, force);
         this.distanceTraveled = 0;
         this.penetration = penetration;
     }

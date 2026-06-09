@@ -13,7 +13,7 @@ import { shapes } from "./shapes.js";
 
 
 export default class Weapon {
-    constructor({ name, type, x, y, width, height, angle, ship, acceleration = 10, speed = 10, damage = 10, range = 1000, energyCost = 10, fireRate = 1, vertices = shapes[0], color = "red" }, force) {
+    constructor({ name, type, x, y, width, height, angle, ship, acceleration = 10, speed = 10, damage = 10, range = 1000, energyCost = 10, fireRate = 1, vertices = shapes[0], color = "red", img }, force) {
         this.name = name;
         this.type = type;
         this.acceleration = acceleration;
@@ -24,6 +24,7 @@ export default class Weapon {
         this.height = height;
         this.angle = angle;
         this.damage = damage;
+        this.img = img;
 
         this.range = range;
         this.fireRate = fireRate;
@@ -52,7 +53,11 @@ export default class Weapon {
                 ctx.rotate(-this.angle);
                 ctx.shadowColor = this.color;
                 ctx.shadowBlur = 10;
-                drawVerticesPath(this.path2D, this.color);
+                if (this.img) {
+                    ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
+                } else {
+                    drawVerticesPath(this.path2D, this.color);
+                }
             }, x: this.x, y: this.y, margin: {
                 width: 200, height: 200
             }

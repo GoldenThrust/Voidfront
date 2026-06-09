@@ -1,3 +1,4 @@
+import { assets } from "../assets/main.js";
 import { worldSize } from "../utils/constants.js";
 import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
@@ -10,15 +11,16 @@ export default class PulseCanon extends Projectile {
             acceleration: 50000,
             x: x,
             y: y,
-            width: 10,
-            height: 20,
+            width: 8,
+            height: 15,
             angle: angle,
             damage: 40,
             range: 10000,
             fireRate: 0.5,
             energyCost: 50,
             ship,
-            color
+            color,
+            img: assets?.images?.projectile
         });
     }
 }

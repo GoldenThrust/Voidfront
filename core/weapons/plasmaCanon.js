@@ -4,9 +4,10 @@ import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
 import Minature from "./minature.js";
 import WeaponManager from "./manager.js";
+import { assets } from "../assets/main.js";
 
 export default class PlasmaCanon extends Projectile {
-    constructor({ x, y, angle, ship, color, name = "Plasma Canon", acceleration = 25000, width = 20, height = 50, damage = 10, range = 5000, speed = 10, fireRate = 0.002, energyCost = 3000, }) {
+    constructor({ x, y, angle, ship, color, name = "Plasma Canon", img = assets?.images?.plasma, acceleration = 25000, width = 10, height = 45, damage = 10, range = 5000, speed = 10, fireRate = 0.002, energyCost = 3000, }) {
         super({
             name,
             speed: speed,
@@ -21,7 +22,8 @@ export default class PlasmaCanon extends Projectile {
             fireRate,
             energyCost,
             ship,
-            color
+            color,
+            img,
         });
     }
 

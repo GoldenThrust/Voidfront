@@ -1,3 +1,4 @@
+import { assets } from "../assets/main.js";
 import { worldSize } from "../utils/constants.js";
 import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
@@ -17,7 +18,8 @@ export default class Minature extends Projectile {
             fireRate: 1,
             energyCost: 0,
             ship,
-            color
+            color,
+            img: assets?.images?.explosionflame
         });
     }
 }
