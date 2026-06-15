@@ -143,6 +143,15 @@ export default class Ship {
 
         if (this.weaponState === "cool" && this.heat >= this.maxHeat) {
             this.weaponState = "hot";
+
+            if (typeof pendo !== "undefined") {
+                pendo.track("weapon_overheated", {
+                    weapon_name: this.weapon.name,
+                    heat_level: this.heat,
+                    max_heat: this.maxHeat,
+                    ship_name: this.name
+                });
+            }
         } else if (this.weaponState === "hot" && this.heat <= 0) {
             this.weaponState = "cool";
         }

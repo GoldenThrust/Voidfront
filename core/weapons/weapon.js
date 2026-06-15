@@ -1,4 +1,5 @@
 import Ship from "../player/ships/ship.js";
+import EnemyManager from "../player/ships/enemies/manager.js";
 import { isSeperatingAxes } from "../utils/collision.js";
 import { clamp } from "../utils/math.js";
 import { createVerticesPath, drawVerticesPath, tranformVertices } from "../utils/vertices.js";
@@ -90,6 +91,16 @@ export default class Weapon {
                     if (element.life <= 0) {
                         element.destroy();
                         weapon.ship.killScore++;
+
+                        if (typeof pendo !== "undefined") {
+                            pendo.track("enemy_destroyed", {
+                                enemy_name: element.name,
+                                weapon_name: weapon.name,
+                                weapon_type: weapon.type,
+                                kill_score_total: weapon.ship.killScore,
+                                enemies_remaining: EnemyManager.ships.length
+                            });
+                        }
                     }
                 } else {
                     element.destroy();

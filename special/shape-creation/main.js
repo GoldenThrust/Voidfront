@@ -206,9 +206,16 @@ cpyBtn.addEventListener("click", () => {
     const nPoints = normalizePoints(vertices);
     let worldPoints = [...nPoints];
     navigator.clipboard.writeText(`[${worldPoints.map((point) => `{x: ${point.x}, y: ${point.y}}`)}]`);
+
+    if (typeof pendo !== "undefined") {
+        pendo.track("shape_exported", {
+            vertex_count: vertices.length
+        });
+    }
 })
 
 mirrorBtn.addEventListener("click", () => {
+    const vertexCountBefore = vertices.length;
     const { minX, maxX } = getMinMax(vertices);
 
     const width = maxX - minX;
@@ -222,6 +229,13 @@ mirrorBtn.addEventListener("click", () => {
     newPoints.reverse();
 
     vertices.push(...newPoints);
+
+    if (typeof pendo !== "undefined") {
+        pendo.track("shape_mirrored", {
+            vertex_count_before: vertexCountBefore,
+            vertex_count_after: vertices.length
+        });
+    }
 })
 
 function getMinMax(points) {
