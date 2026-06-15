@@ -29,6 +29,14 @@ async function init() {
     
     world.attach(ship);
     requestAnimationFrame(animate);
+
+    if (typeof pendo !== "undefined") {
+        pendo.track("game_started", {
+            enemy_count: EnemyManager.ships.length,
+            world_width: world.width,
+            world_height: world.height
+        });
+    }
 }
 
 export let attachWorld = -1;
@@ -101,7 +109,19 @@ async function animate(t) {
     if (ship.life > 0 && EnemyManager.ships.length > 0)
         requestAnimationFrame(animate);
     else {
+        const outcome = ship.life <= 0 ? "defeat" : "victory";
         const text = ship.life <= 0 ? "Game Over 😭. Try again." : "You dominate the void 🥳.";
+
+        if (typeof pendo !== "undefined") {
+            pendo.track("game_over", {
+                outcome: outcome,
+                kill_score: ship.killScore,
+                enemies_remaining: EnemyManager.ships.length,
+                enemies_destroyed_count: destroyedShips.length,
+                player_life: ship.life,
+                final_weapon_name: ship.weapon.name
+            });
+        }
 
         ctx.font = '50px Arial';
 

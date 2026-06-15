@@ -54,20 +54,38 @@ export default class WeaponManager {
 
     nextWeapon() {
         const ship = worldManager.findAttachedShip();
+        const previousWeaponName = ship.weapon.name;
         const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) + 1;
 
         const nextWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[0];
 
         this.changeWeapon(nextWeapon);
+
+        if (typeof pendo !== "undefined") {
+            pendo.track("weapon_switched", {
+                previous_weapon_name: previousWeaponName,
+                new_weapon_name: nextWeapon.name,
+                switch_direction: "next"
+            });
+        }
     }
 
     previousWeapon() {
         const ship = worldManager.findAttachedShip();
+        const previousWeaponName = ship.weapon.name;
 
         const currentWeaponId = WeaponManager.weaponTypes.findIndex(w => w === ship.weapon) - 1;
         const previousWeapon = WeaponManager.weaponTypes[currentWeaponId] || WeaponManager.weaponTypes[WeaponManager.weaponTypes.length - 1];
 
         this.changeWeapon(previousWeapon);
+
+        if (typeof pendo !== "undefined") {
+            pendo.track("weapon_switched", {
+                previous_weapon_name: previousWeaponName,
+                new_weapon_name: previousWeapon.name,
+                switch_direction: "previous"
+            });
+        }
     }
 
     changeWeapon(weapon) {

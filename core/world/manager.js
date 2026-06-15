@@ -44,21 +44,53 @@ class WorldManager {
     attachRandom() {
         this.attachedId = Math.floor(Math.random() * EnemyManager.ships.length);
         world.attach(EnemyManager.ships[this.attachedId]);
+
+        if (typeof pendo !== "undefined") {
+            pendo.track("camera_view_changed", {
+                attachment_method: "random",
+                target_ship_name: EnemyManager.ships[this.attachedId]?.name,
+                attached_ship_index: this.attachedId
+            });
+        }
     }
 
     attachNext() {
         this.attachedId = (this.attachedId + 1) % EnemyManager.ships.length;
         world.attach(EnemyManager.ships[this.attachedId]);
+
+        if (typeof pendo !== "undefined") {
+            pendo.track("camera_view_changed", {
+                attachment_method: "next",
+                target_ship_name: EnemyManager.ships[this.attachedId]?.name,
+                attached_ship_index: this.attachedId
+            });
+        }
     }
 
     attachPrevious() {
         this.attachedId = (this.attachedId - 1 + EnemyManager.ships.length) % EnemyManager.ships.length;
         world.attach(EnemyManager.ships[this.attachedId]);
+
+        if (typeof pendo !== "undefined") {
+            pendo.track("camera_view_changed", {
+                attachment_method: "previous",
+                target_ship_name: EnemyManager.ships[this.attachedId]?.name,
+                attached_ship_index: this.attachedId
+            });
+        }
     }
 
     attachMainShip() {
         this.attachedId = -1;
         world.attach(ship);
+
+        if (typeof pendo !== "undefined") {
+            pendo.track("camera_view_changed", {
+                attachment_method: "main_ship",
+                target_ship_name: "Player",
+                attached_ship_index: -1
+            });
+        }
     }
 }
 
