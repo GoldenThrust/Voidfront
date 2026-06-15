@@ -19,6 +19,12 @@ import { spatial } from "./core/world/spatialHash.js";
 import Minature from "./core/weapons/minature.js";
 import { assets, buildAssets } from "./core/assets/main.js";
 
+pendo.initialize({
+    visitor: {
+        id: ''
+    }
+});
+
 async function init() {
     await buildAssets();
     console.log("Assets loaded", assets);
