@@ -15,7 +15,6 @@ function loadImage(src) {
 }
 
 function loadVideo(src) {
-
     return new Promise((res, rej) => {
         const vid = document.createElement('video');
         vid.src = `/assets/video/${src}`;
@@ -33,7 +32,7 @@ function loadVideo(src) {
 }
 
 export function loadAudio(src) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (res, rej) => {
         try {
             const response = await fetch(`/assets/audio/${src}`);
             const audioData = await response.arrayBuffer();
@@ -42,7 +41,7 @@ export function loadAudio(src) {
 
             res(buffer);
         } catch (error) {
-            reject(error)
+            rej(error)
         }
     })
 }

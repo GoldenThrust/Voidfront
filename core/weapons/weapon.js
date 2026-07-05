@@ -51,8 +51,8 @@ export default class Weapon {
         drawWrapped({
             fn: () => {
                 ctx.rotate(-this.angle);
-                ctx.shadowColor = this.color;
-                ctx.shadowBlur = 10;
+                // ctx.shadowColor = this.color;
+                // ctx.shadowBlur = 10;
                 if (this.img) {
                     ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
                 } else {

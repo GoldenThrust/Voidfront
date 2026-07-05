@@ -22,6 +22,10 @@ export const assetsUrl = {
         "projectile": './weapons/projectile.png',
     },
     videos: {},
-    audios: {}
+    audios: {
+        "gunshot": "./gunshot.mp3",
+        "explosion": "./explosion.mp3",
+        "engine": "./engine.mp3"
+    }
 }
  
