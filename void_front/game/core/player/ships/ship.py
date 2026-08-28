@@ -24,7 +24,7 @@ class Ship:
         self.x = x
         self.y = y
         self.speed = 0
-        self.acceleration = clamp(acceleration, 0, 10000)
+        self.acceleration = acceleration
         self.width = width
         self.height = height
         self.angle = angle

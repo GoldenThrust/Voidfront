@@ -1,15 +1,13 @@
 import { assets } from "../../../assets/main.js";
-import { clamp } from "../../../utils/math.js";
 import PlasmaCanon from "../../../weapons/plasmaCanon.js";
-import { canvas } from "../../../world/canvas.js";
-import { toroidalAngle, toroidalDistance, updateWrapped } from "../../../world/utils.js";
+import { toroidalDistance, updateWrapped } from "../../../world/utils.js";
 import { ship } from "../player.js";
 import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
 export default class Bomber extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 300, color: "blue", vertices: shapes[4], name: "Bomber Drone", maxWeaponHeat: 10000, life: 200, weapon: PlasmaCanon, img: assets?.images?.bombership, flameImg: assets?.images?.flame2 });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 550, color: "blue", vertices: shapes[4], name: "Bomber Drone", maxWeaponHeat: 10000, life: 200, weapon: PlasmaCanon, img: assets?.images?.bombership, flameImg: assets?.images?.flame2 });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

@@ -1,28 +1,30 @@
 import { assets } from "../../../assets/main.js";
-import { clamp } from "../../../utils/math.js";
+import { FIXED_DT } from "../../../utils/constants.js";
+import { clamp, lerp } from "../../../utils/math.js";
 import Mine from "../../../weapons/mine.js";
-import { canvas } from "../../../world/canvas.js";
-import { toroidalAngle, toroidalDistance, updateWrapped } from "../../../world/utils.js";
+import { toroidalDistance, updateWrapped, wrap } from "../../../world/utils.js";
 import { ship } from "../player.js";
 import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
 export default class Miner extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 500, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 100, life: 300, weapon: Mine, img: assets?.images?.minership, flameImg: assets?.images?.flame4 });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 1000, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 100, life: 300, weapon: Mine, img: assets?.images?.minership, flameImg: assets?.images?.flame4 });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }
-    
+
     closeWeapon(weapon, dist, alpha) {
-       if (dist > 7 ** 7) return;
+        if (dist > 7 ** 7) return;
         if (Math.abs(alpha + Math.PI / 2) < Math.PI / 8) {
             this.fire();
         }
 
         const beta = alpha + Math.PI / 2;
 
-        this.angle -= clamp(beta, this.turnRate);
+        const delta = Math.atan2(Math.sin(beta), Math.cos(beta));
+
+        this.angle = wrap(lerp(this.angle, this.angle - clamp(delta, -this.turnRate, this.turnRate) * FIXED_DT * this.speed_factor, 0.3), Math.PI * 2);
     }
 
     update(t, dt) {

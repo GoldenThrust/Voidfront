@@ -1,6 +1,6 @@
 import { InferenceSession, Tensor } from "onnxruntime-web";
 import { world } from "../world/world.js";
-import { toroidalAngle, toroidalDelta, toroidalDistance, updateWrapped, wrap } from "../world/utils.js";
+import { toroidalDelta, wrap } from "../world/utils.js";
 import { clamp } from "../utils/math.js";
 import AI from "../player/ships/enemies/AI.js";
 import EnemyManager from "../player/ships/enemies/manager.js";
@@ -32,7 +32,7 @@ export async function processAction(me, enemy, t, dt) {
         speed
     ]);
 
-    let action = new Float32Array([0, 0]);
+    let action;
 
     const dx = toroidalDelta(enemy.x, me.x, world.width) / (world.width / 2)
     const dy = toroidalDelta(enemy.y, me.y, world.height) / (world.height / 2)

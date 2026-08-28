@@ -13,8 +13,8 @@ import Tormenter from "./tormenter.js";
 
 export default class EnemyManager {
     static ships = [];
-    static types = [AI];
-    // static types = [FleetDrone, Tormenter, Sniper, Bomber, Miner, MissileLaucher];
+    // static types = [AI];
+    static types = [FleetDrone, Tormenter, Sniper, Bomber, Miner, MissileLaucher];
 
     static init() {
         for (let i = 0; i < sizeOf.ship; i++) {

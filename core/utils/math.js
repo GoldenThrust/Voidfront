@@ -5,6 +5,10 @@ export function clamp(value, min, max = null) {
   return Math.max(max ? min : -min, Math.min(max ?? min, value))
 }
 
+export function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
 export function normalizeAngle(angle) {
   return ((angle % TAU) + TAU) % TAU;
 }

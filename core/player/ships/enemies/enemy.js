@@ -1,7 +1,8 @@
-import { clamp } from "../../../utils/math.js";
+import { FIXED_DT } from "../../../utils/constants.js";
+import { clamp, lerp } from "../../../utils/math.js";
 import Weapon from "../../../weapons/weapon.js";
 import { spatial } from "../../../world/spatialHash.js";
-import { toroidalAngle, toroidalDirection, toroidalDistance } from "../../../world/utils.js";
+import { toroidalDirection, toroidalDistance, wrap } from "../../../world/utils.js";
 import { ship } from "../player.js";
 import Ship from "../ship.js";
 import EnemyManager from "./manager.js";
@@ -19,18 +20,20 @@ export default class EnemyShip extends Ship {
     }
 
     follow(obj) {
-        let tangent = 0;
+        let tangent;
         if (this.state === "flee") {
             tangent = Math.PI / 2;
         } else {
             tangent = -Math.PI / 2;
         }
 
-        const diff = toroidalDirection(obj.x, obj.y, this.x, this.y, this.angle, tangent);
+        const delta = toroidalDirection(obj.x, obj.y, this.x, this.y, this.angle, tangent);
 
-        this.angle -= clamp(diff, this.turnRate);
 
-        return diff;
+        this.angle = wrap(lerp(this.angle, this.angle - clamp(delta, -this.turnRate, this.turnRate) * FIXED_DT * this.speed_factor, 0.9), Math.PI * 2);
+
+
+        return delta;
     }
 
     // respond to close Weapon
@@ -45,7 +48,9 @@ export default class EnemyShip extends Ship {
 
         const beta = alpha + Math.PI / 2;
 
-        this.angle -= clamp(beta, this.turnRate * 0.5);
+        const delta = Math.atan2(Math.sin(beta), Math.cos(beta));
+
+        this.angle = wrap(lerp(this.angle, this.angle - clamp(delta, -this.turnRate, this.turnRate) * FIXED_DT * this.speed_factor, 0.3), Math.PI * 2);
     }
 
     nearByWeapon() {

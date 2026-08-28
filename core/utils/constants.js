@@ -2,7 +2,7 @@ import { canvasHeight, canvasWidth } from "../world/canvas.js"
 
 
 export const sizeOf = {
-    ship: 2,
+    ship: 20,
     star: 10,
     asteroid: 10,
 }

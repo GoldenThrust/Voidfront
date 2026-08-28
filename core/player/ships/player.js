@@ -1,11 +1,7 @@
 import { audioCtx } from "../../assets/audio/context.js";
 import { assets } from "../../assets/main.js";
-import { playAudio, throtlePlayAudio } from "../../assets/utils.js";
 import { clamp } from "../../utils/math.js";
 import { randomNum } from "../../utils/random.js";
-import { toroidalDirection } from "../../world/utils.js";
-import { world } from "../../world/world.js";
-import EnemyManager from "./enemies/manager.js";
 import Ship from "./ship.js";
 
 
@@ -38,6 +34,10 @@ export default class PlayerShip extends Ship {
         const spawnDistance = 200000;
         const spawnX = randomNum(x - spawnDistance, x + spawnDistance);
         const spawnY = randomNum(y - spawnDistance, y + spawnDistance);
-        ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 50, height: 50, color: "#84d0ff", controllable: true, acceleration: 3500 });
+        ship = new PlayerShip({ x: spawnX, y: spawnY, angle, width: 50, height: 50, color: "#84d0ff", controllable: true, acceleration: 600, turnRate: 4.5, maxWeaponHeat: 10000 });
     }
 }    
+
+
+// 600-1500
+// 2-4.5
