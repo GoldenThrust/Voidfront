@@ -6,7 +6,8 @@ import pygame
 from game.core.player.ships.enemies.manager import EnemyManager
 from game.core.weapons.manager import WeaponManager
 from game.core.world.canvas import draw_text
-from utils import toroidalDelta, wrap
+from game.core.world.utils import toroidalDelta, toroidalDistance, wrap
+
 
 from game.core.player.ships import player
 from game.core.world.world import world as game_world
@@ -25,6 +26,7 @@ class VoidFrontEnv(gym.Env):
     Observation:
         self
         enemies
+        weapons
     """
 
     metadata = {
@@ -40,6 +42,8 @@ class VoidFrontEnv(gym.Env):
         max_speed=50000.0,
         speed_damping=0.999,
         max_enemies=100,
+        max_weapons=100,
+        view_radius=15000.0,
         max_episode_steps=10000,
         render_mode=None,
     ):
@@ -58,10 +62,49 @@ class VoidFrontEnv(gym.Env):
 
         self.max_speed = float(max_speed)
 
+        # Enemies and weapons are stored in a spatial hash and can be
+        # of any number/size at runtime. K_enemies / K_weapons are just
+        # the fixed-size slot budgets we expose to the observation
+        # space; the actual population living in EnemyManager /
+        # WeaponManager can be smaller or larger than this at any time.
         self.K_enemies = int(max_enemies)
-        # self.K_friends = int(max_friends)
+        self.K_weapons = int(max_weapons)
+
+        # Radius (world units) used when querying the ship's spatial
+        # hash for nearby players/weapons via getNearPlayers/getNearWeapons.
+        self.view_radius = float(view_radius)
+
+        # Weapons/projectiles are only treated as an active threat inside
+        # this (smaller, tighter) radius. Keeping it separate from
+        # view_radius means the agent can *see* a weapon well before it
+        # needs to react to it.
+        self.threat_radius = float(view_radius) * 0.35
 
         self.max_episode_steps = int(max_episode_steps)
+
+        # =========================================================
+        # REWARD WEIGHTS (tune here, not inline in _calculate_reward)
+        # =========================================================
+        self.w_progress = 4.0  # closing distance on nearest enemy
+        self.w_alignment = 1.5  # facing the nearest enemy
+        self.w_damage_dealt = 0.05  # per point of damage_score delta
+        self.w_kill = 20.0  # per kill
+        self.w_win = 100.0  # clearing the whole enemy population
+        self.w_damage_taken = 0.001  # per point of health lost
+        self.w_death = 10.0  # dying this step
+        self.w_threat_shaping = (
+            3.0  # reward for increasing distance from nearest threatening weapon
+        )
+        self.w_threat_proximity = (
+            1.5  # extra penalty for being deep inside threat_radius
+        )
+        self.living_reward = 0
+        self.time_penalty = 0.001
+        self.timeout_penalty = 5.0
+
+        # Distance (not health/score) trackers used for potential-based
+        # shaping so standing still / spinning nets ~0 reward.
+        self.last_threat_distance = self.threat_radius
 
         self.render_mode = render_mode
 
@@ -77,14 +120,16 @@ class VoidFrontEnv(gym.Env):
         # =========================================================
         self.game_player = None
         self.game_friends = []
-        self.weapon_names = [
-            "pulse",
-            "gatling",
-            "rail",
-            "plasma",
-            "missile",
-            "mine",
-        ]
+        self.weapon_names = {
+            "Pulse Canon": 0,
+            "Gatling Gun": 1,
+            "Heavy RailGun": 2,
+            "Plasma Canon": 3,
+            "Homing Missile": 4,
+            "Mine": 5,
+            "Minature": 6,
+        }
+
         self.ship_names = {
             "Bomber Drone": 0,
             "Fleet Drone": 1,
@@ -94,6 +139,7 @@ class VoidFrontEnv(gym.Env):
             "Tormenter Drone": 5,
         }
         self.weapon_index = 0
+        WeaponManager.init()
 
         # =========================================================
         # EPISODE
@@ -117,18 +163,27 @@ class VoidFrontEnv(gym.Env):
             dtype=np.float32,
         )
 
+        # spaces.Dict(
+        #     {
+        #         "movement": Box(-1, 1, (2,)),
+        #         "fire": MultiBinary(1),
+        #         "weapon": Discrete(num_weapons),
+        #     }
+        # )
+
         # =========================================================
         # OBSERVATION SPACE
         # =========================================================
         #
         # SELF:
         #
-        # [vx, vy, heading, acceleration, turn rate]
+        # [vx, vy, heading_x, heading_y, speed, health, heat, weapon_idx]
         #
         #
-        # ENEMY:
+        # ENEMY / WEAPON (per slot, up to K_enemies / K_weapons nearest
+        # entities returned by the ship's spatial-hash queries):
         #
-        # [relative_x, relative_y,  relative_enemy_vx, relative_enemy_vy, relative_distance, relative_angle, type]
+        # [relative_x, relative_y, relative_vx, relative_vy, distance, alignment, type]
         # =========================================================
 
         self.observation_space = spaces.Dict(
@@ -162,35 +217,20 @@ class VoidFrontEnv(gym.Env):
                     ),
                     dtype=np.float32,
                 ),
-                # "friends": spaces.Box(
-                #     low=np.array(
-                #         [
-                #             [
-                #                 -1.0,  # dx
-                #                 -1.0,  # dy
-                #                 -1.0,  # d_vx
-                #                 -1.0,  # d_vy
-                #                 0.0,  # distance
-                #                 -1.0,  # alignment
-                #                 0.0,  # type
-                #             ]
-                #         ]
-                #         * self.K_friends,
-                #         dtype=np.float32,
-                #     ),
-                #     high=np.array(
-                #         [[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]] * self.K_friends,
-                #         dtype=np.float32,
-                #     ),
-                #     shape=(
-                #         self.K_friends,
-                #         8,
-                #     ),
-                #     dtype=np.float32,
-                # ),
                 "enemies": spaces.Box(
                     low=np.array(
-                        [[-1.0, -1.0, -1.0, -1.0, 0.0, -1.0, 0.0]] * self.K_enemies,
+                        [
+                            [
+                                -1.0,  # dx
+                                -1.0,  # dy
+                                -1.0,  # d_vx
+                                -1.0,  # d_vy
+                                0.0,  # distance
+                                -1.0,  # alignment
+                                0.0,  # type
+                            ]
+                        ]
+                        * self.K_enemies,
                         dtype=np.float32,
                     ),
                     high=np.array(
@@ -199,6 +239,32 @@ class VoidFrontEnv(gym.Env):
                     ),
                     shape=(
                         self.K_enemies,
+                        7,
+                    ),
+                    dtype=np.float32,
+                ),
+                "weapons": spaces.Box(
+                    low=np.array(
+                        [
+                            [
+                                -1.0,  # dx
+                                -1.0,  # dy
+                                -1.0,  # d_vx
+                                -1.0,  # d_vy
+                                0.0,  # distance
+                                -1.0,  # alignment
+                                0.0,  # type
+                            ]
+                        ]
+                        * self.K_weapons,
+                        dtype=np.float32,
+                    ),
+                    high=np.array(
+                        [[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]] * self.K_weapons,
+                        dtype=np.float32,
+                    ),
+                    shape=(
+                        self.K_weapons,
                         7,
                     ),
                     dtype=np.float32,
@@ -305,10 +371,10 @@ class VoidFrontEnv(gym.Env):
 
         return angle / np.pi - 1.0
 
-    def angleAndDistance(self, enemy):
-        dx = toroidalDelta(self.ship.x, enemy.x, self.world_width)
+    def angleAndDistance(self, other):
+        dx = toroidalDelta(self.ship.x, other.x, self.world_width)
 
-        dy = toroidalDelta(self.ship.y, enemy.y, self.world_height)
+        dy = toroidalDelta(self.ship.y, other.y, self.world_height)
 
         relative = np.array(
             [dx, dy],
@@ -348,6 +414,48 @@ class VoidFrontEnv(gym.Env):
             arr = np.pad(arr, (0, 4 - arr.size), constant_values=0.0)
         return arr[:4]
 
+    # =============================================================
+    # RELATIVE ENTITY ROW (shared by enemies / weapons)
+    # =============================================================
+
+    def _relative_entity_row(
+        self, ship, ship_vx, ship_vy, ship_angle, entity, type_norm
+    ):
+        dx = toroidalDelta(entity.x, ship.x, self.world_width)
+        dy = toroidalDelta(entity.y, ship.y, self.world_height)
+
+        entity_angle = float(getattr(entity, "angle", 0.0))
+        entity_speed = float(getattr(entity, "speed", 0.0))
+        entity_vx = -np.sin(entity_angle) * entity_speed
+        entity_vy = -np.cos(entity_angle) * entity_speed
+
+        relative_vx = (entity_vx - ship_vx) / max(self.max_speed * 2.0, 1.0)
+        relative_vy = (entity_vy - ship_vy) / max(self.max_speed * 2.0, 1.0)
+
+        dist = np.linalg.norm(np.array([dx, dy], dtype=np.float32))
+
+        target_dir = np.array([dx, dy], dtype=np.float32)
+        if np.linalg.norm(target_dir) > 1e-6:
+            target_dir = target_dir / np.linalg.norm(target_dir)
+
+        heading_vec = np.array(
+            [-np.sin(ship_angle), -np.cos(ship_angle)], dtype=np.float32
+        )
+        alignment = float(np.clip(np.dot(heading_vec, target_dir), -1.0, 1.0))
+
+        return np.array(
+            [
+                np.clip(dx / (self.world_width / 2.0), -1.0, 1.0),
+                np.clip(dy / (self.world_height / 2.0), -1.0, 1.0),
+                np.clip(relative_vx, -1.0, 1.0),
+                np.clip(relative_vy, -1.0, 1.0),
+                np.clip(dist / max(self._longest_distance(), 1.0), 0.0, 1.0),
+                alignment,
+                type_norm,
+            ],
+            dtype=np.float32,
+        )
+
     def _get_obs(self):
         ship = self.game_player
 
@@ -377,123 +485,81 @@ class VoidFrontEnv(gym.Env):
             dtype=np.float32,
         )
 
-        enemies = EnemyManager.ships[: self.K_enemies]
+        # ----------------------------------------------------------
+        # Enemies: query the ship's spatial hash instead of iterating
+        # every ship EnemyManager knows about. EnemyManager.ships can
+        # be any size, so we only ever want the nearby subset within
+        # view_radius, capped to the K_enemies observation slots.
+        # ----------------------------------------------------------
+        near_enemies = sorted(
+            ship.getNearPlayers(self.view_radius),
+            key=lambda enemy: toroidalDistance(
+                enemy.x,
+                enemy.y,
+                ship.x,
+                ship.y,
+            ),
+        )
+        near_enemies = near_enemies[: self.K_enemies]
         enemies_mat = np.zeros((self.K_enemies, 7), dtype=np.float32)
-        for i, enemy in enumerate(enemies):
-            dx = toroidalDelta(enemy.x, ship.x, self.world_width)
-            dy = toroidalDelta(enemy.y, ship.y, self.world_height)
-            enemy_angle = float(getattr(enemy, "angle", 0.0))
-            enemy_speed = float(getattr(enemy, "speed", 0.0))
-            enemy_vx = -np.sin(enemy_angle) * enemy_speed
-            enemy_vy = -np.cos(enemy_angle) * enemy_speed
-            relative_vx = (enemy_vx - ship_vx) / max(self.max_speed * 2.0, 1.0)
-            relative_vy = (enemy_vy - ship_vy) / max(self.max_speed * 2.0, 1.0)
-            dist = np.linalg.norm(np.array([dx, dy], dtype=np.float32))
-            target_dir = np.array([dx, dy], dtype=np.float32)
-            if np.linalg.norm(target_dir) > 1e-6:
-                target_dir = target_dir / np.linalg.norm(target_dir)
-            heading_vec = np.array(
-                [-np.sin(ship_angle), -np.cos(ship_angle)], dtype=np.float32
-            )
-            alignment = float(np.clip(np.dot(heading_vec, target_dir), -1.0, 1.0))
-
-            enemy_norm = self.ship_names.get(enemy.name, 0) / max(
+        for i, enemy in enumerate(near_enemies):
+            enemy_type_norm = self.ship_names.get(enemy.name, 0) / max(
                 len(self.ship_names) - 1, 1
             )
-            enemies_mat[i] = np.array(
-                [
-                    np.clip(dx / (self.world_width / 2.0), -1.0, 1.0),
-                    np.clip(dy / (self.world_height / 2.0), -1.0, 1.0),
-                    np.clip(relative_vx, -1.0, 1.0),
-                    np.clip(relative_vy, -1.0, 1.0),
-                    np.clip(dist / max(self._longest_distance(), 1.0), 0.0, 1.0),
-                    alignment,
-                    enemy_norm,
-                ],
-                dtype=np.float32,
+            enemies_mat[i] = self._relative_entity_row(
+                ship, ship_vx, ship_vy, ship_angle, enemy, enemy_type_norm
             )
 
-        # friends = self.game_friends[: self.K_friends]
-        # friend_mat = np.zeros((self.K_friends, 8), dtype=np.float32)
-        # for i, friend in enumerate(friends):
-        #     dx = toroidalDelta(friend.x, ship.x, self.world_width)
-        #     dy = toroidalDelta(friend.y, ship.y, self.world_height)
-        #     friend_angle = float(getattr(friend, "angle", 0.0))
-        #     friend_speed = float(getattr(friend, "speed", 0.0))
-        #     friend_vx = -np.sin(friend_angle) * friend_speed
-        #     friend_vy = -np.cos(friend_angle) * friend_speed
-        #     relative_vx = (friend_vx - ship_vx) / max(self.max_speed * 2.0, 1.0)
-        #     relative_vy = (friend_vy - ship_vy) / max(self.max_speed * 2.0, 1.0)
-        #     dist = np.linalg.norm(np.array([dx, dy], dtype=np.float32))
-        #     target_dir = np.array([dx, dy], dtype=np.float32)
-        #     if np.linalg.norm(target_dir) > 1e-6:
-        #         target_dir = target_dir / np.linalg.norm(target_dir)
-        #     heading_vec = np.array(
-        #         [-np.sin(ship_angle), -np.cos(ship_angle)], dtype=np.float32
-        #     )
-        #     alignment = float(np.clip(np.dot(heading_vec, target_dir), -1.0, 1.0))
-        #     friend_norm = self.ship_names.get(friend.name, 0) / max(
-        #         len(self.ship_names) - 1, 1
-        #     )
-
-        #     friend_mat[i] = np.array(
-        #         [
-        #             np.clip(dx / (self.world_width / 2.0), -1.0, 1.0),
-        #             np.clip(dy / (self.world_height / 2.0), -1.0, 1.0),
-        #             np.clip(relative_vx, -1.0, 1.0),
-        #             np.clip(relative_vy, -1.0, 1.0),
-        #             np.clip(dist / max(self._longest_distance(), 1.0), 0.0, 1.0),
-        #             alignment,
-        #             friend_norm,
-        #         ],
-        #         dtype=np.float32,
-        #     )
+        # ----------------------------------------------------------
+        # Weapons: same idea, but sourced from the spatial hash of
+        # live weapon/projectile instances (WeaponManager can also
+        # hold any number of active weapons at a time).
+        # ----------------------------------------------------------
+        near_weapons = sorted(
+            ship.getNearWeapons(self.threat_radius),
+            key=lambda weapon: toroidalDistance(
+                weapon.x,
+                weapon.y,
+                ship.x,
+                ship.y,
+            ),
+        )
+        near_weapons = near_weapons[: self.K_weapons]
+        weapons_mat = np.zeros((self.K_weapons, 7), dtype=np.float32)
+        for i, weapon in enumerate(near_weapons):
+            weapon_type_norm = self.weapon_names.get(weapon.name, 0) / max(
+                len(self.weapon_names) - 1, 1
+            )
+            weapons_mat[i] = self._relative_entity_row(
+                ship, ship_vx, ship_vy, ship_angle, weapon, weapon_type_norm
+            )
 
         return {
             "self": self_vec,
             "enemies": enemies_mat,
-            # "friends": friend_mat
+            "weapons": weapons_mat,
         }
 
     # =============================================================
     # RESET
     # =============================================================
 
-    def reset(
-        self,
-        seed=None,
-        options=None,
-    ):
+    def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.game_player = player.PlayerShip.spawn(
             self.world_width / 2, self.world_height / 2
         )
         EnemyManager.init(self.K_enemies)
 
-        # self.game_friends = []
-        # for _ in range(self.K_friends):
-        #     friend = GameShip(
-        #         x=self.np_random.uniform(0.0, self.world_width),
-        #         y=self.np_random.uniform(0.0, self.world_height),
-        #         width=20.0,
-        #         height=20.0,
-        #         angle=self.np_random.uniform(0.0, 2.0 * np.pi),
-        #         acceleration=float(self.np_random.uniform(100.0, 1000.0)),
-        #         turnRate=float(self.np_random.uniform(0.1, 1.0)),
-        #         color="red",
-        #         name=f"Friend-{len(self.game_friends)}",
-        #         controllable=False,
-        #         life=1000.0,
-        #         maxWeaponHeat=10000,
-        #     )
-        #     friend.dampSpeed = self.speed_damping
-        #     self.game_friends.append(friend)
-
         self.acceleration = float(getattr(self.game_player, "acceleration", 3500.0))
         self.turn_rate = float(getattr(self.game_player, "turnRate", 2.0))
         self.max_speed = float(getattr(self.game_player, "maxSpeed", 5000.0))
         self.current_step = 0
         self.last_health = float(getattr(self.game_player, "life", 1000.0))
+        self.last_distance = 0.0
+        self.last_kill_score = 0
+        self.last_damage_score = 0
+        self.last_threat_distance = self.threat_radius
         observation = self._get_obs()
         return observation, {
             "acceleration": self.acceleration,
@@ -521,8 +587,12 @@ class VoidFrontEnv(gym.Env):
         if fire_signal > 0.5 and hasattr(self.game_player, "fire"):
             self.game_player.fire()
             self.last_fire = True
+
         self.game_player.set_weapon(weapon_signal)
 
+        # Physics update still runs over every enemy EnemyManager is
+        # tracking (this is a full-world tick, not an observation
+        # query), regardless of how many/what size they are.
         for enemy in EnemyManager.ships:
             enemy_turn = self.np_random.uniform(-1.0, 1.0)
             enemy_thrust = self.np_random.uniform(-0.5, 1.0)
@@ -546,143 +616,170 @@ class VoidFrontEnv(gym.Env):
             "alignment": alignment,
             "weapon": self.weapon_index,
         }
+
+        if self.current_step > 50_000_000:
+            self.w_progress = 1
+            self.w_alignment = 0.5
+        elif self.current_step > 100_000_000:
+            self.w_progress = 0
+            self.w_alignment = 0
+
         return observation, reward, terminated, truncated, info
+
+    def _nearest(self, ship, entities):
+        """Return (entity, distance) for the closest entity in a list, or (None, None)."""
+        if not entities:
+            return None, None
+        best = min(
+            entities,
+            key=lambda e: toroidalDistance(e.x, e.y, ship.x, ship.y),
+        )
+        return best, float(toroidalDistance(best.x, best.y, ship.x, ship.y))
 
     def _calculate_reward(self):
         ship = self.game_player
-        enemies = EnemyManager.ships
-
-        if ship is None or not enemies:
-            return 0.0, 0.0, 0.0
-
-        # ==========================================================
-        # Nearest enemy
-        # ==========================================================
-
-        target = min(
-            enemies,
-            key=lambda enemy: np.linalg.norm(
-                np.array(
-                    [
-                        toroidalDelta(enemy.x, ship.x, self.world_width),
-                        toroidalDelta(enemy.y, ship.y, self.world_height),
-                    ],
-                    dtype=np.float32,
-                )
-            ),
-        )
-
-        dx = toroidalDelta(target.x, ship.x, self.world_width)
-        dy = toroidalDelta(target.y, ship.y, self.world_height)
-
-        relative = np.array([dx, dy], dtype=np.float32)
-
-        distance = float(np.linalg.norm(relative))
-
-        target_dir = (
-            relative / distance
-            if distance > 1e-6
-            else np.array([1.0, 0.0], dtype=np.float32)
-        )
-
-        heading = np.array(
-            [
-                -np.sin(ship.angle),
-                -np.cos(ship.angle),
-            ],
-            dtype=np.float32,
-        )
-
-        heading /= max(np.linalg.norm(heading), 1e-6)
-
-        alignment = float(np.clip(np.dot(heading, target_dir), -1.0, 1.0))
+        if ship is None:
+            return 0.0, self.last_distance, 0.0
 
         longest = max(self._longest_distance(), 1.0)
+        heading = np.array([-np.sin(ship.angle), -np.cos(ship.angle)], dtype=np.float32)
+        heading /= max(np.linalg.norm(heading), 1e-6)
 
         # ==========================================================
-        # Progress
+        # ENGAGEMENT — approach + face the nearest enemy.
+        # Spatial-hash query (not the raw EnemyManager population) so
+        # this scales the same whether there are 3 enemies or 3000.
+        # Potential-based on distance: reward = how much closer we got
+        # since last step, so orbiting at a fixed range nets ~0 rather
+        # than a free per-step bonus.
         # ==========================================================
+        near_enemies = sorted(
+            ship.getNearPlayers(self.view_radius),
+            key=lambda enemy: toroidalDistance(
+                enemy.x,
+                enemy.y,
+                ship.x,
+                ship.y,
+            ),
+        )
+        target, distance = self._nearest(ship, near_enemies)
 
-        progress = (self.last_distance - distance) / longest
+        if target is not None:
+            dx = toroidalDelta(target.x, ship.x, self.world_width)
+            dy = toroidalDelta(target.y, ship.y, self.world_height)
+            relative = np.array([dx, dy], dtype=np.float32)
+            target_dir = (
+                relative / distance
+                if distance > 1e-6
+                else np.array([1.0, 0.0], dtype=np.float32)
+            )
+            alignment = float(np.clip(np.dot(heading, target_dir), -1.0, 1.0))
+            progress = (self.last_distance - distance) / longest
+        else:
+            # No enemy in range at all: no target to chase, so no
+            # progress/alignment signal — don't fabricate one, and
+            # don't let self.last_distance decay toward zero either.
+            distance = self.last_distance
+            alignment = 0.0
+            progress = 0.0
 
-        # ==========================================================
-        # Damage
-        # ==========================================================
-
-        current_health = float(ship.life)
-
-        damage_taken = max(0.0, self.last_health - current_health)
-
-        damage_penalty = -damage_taken / 1000.0
-
-        # ==========================================================
-        # Kill reward
-        # ==========================================================
-
-        damage = getattr(ship, "damage_score", 0.0) - self.last_damage_score
-
-        damage_reward = damage / 100.0
-
-        self.last_damage_score = getattr(ship, "damage_score", 0.0)
-
-        kill_reward = 0.0
-
-        kills = getattr(ship, "killScore", 0) - self.last_kill_score
-
-        if kills > 0:
-            kill_reward = 10.0 * kills
-
-        self.last_kill_score = getattr(ship, "killScore", 0)
-
-        # ==========================================================
-        # Target reached
-        # ==========================================================
+        engagement_reward = self.w_progress * progress + self.w_alignment * alignment
 
         target_reward = 0.0
-
-        if distance < 250:
-            target_reward += 2.0
-
-        if distance < 100:
-            target_reward += 5.0
+        # if target is not None:
+        #     if distance < 250:
+        #         target_reward += 2.0
+        #     if distance < 100:
+        #         target_reward += 5.0
 
         # ==========================================================
-        # Time penalty
+        # THREAT AVOIDANCE — dodge nearby weapons/projectiles.
+        # Also potential-based: reward is proportional to how much
+        # farther the nearest threat got this step, clipped to
+        # threat_radius so a threat leaving view entirely doesn't
+        # produce one giant spike. A flat proximity penalty is layered
+        # on top so lingering deep inside the danger radius still
+        # costs something even between shaping ticks.
         # ==========================================================
+        near_weapons = sorted(
+            ship.getNearWeapons(self.threat_radius),
+            key=lambda weapon: toroidalDistance(
+                weapon.x,
+                weapon.y,
+                ship.x,
+                ship.y,
+            ),
+        )
+        _, threat_distance = self._nearest(ship, near_weapons)
 
-        living_reward = 0.01
+        if threat_distance is not None:
+            threat_shaping = (
+                threat_distance - self.last_threat_distance
+            ) / self.threat_radius
+            threat_shaping = float(np.clip(threat_shaping, -1.0, 1.0))
+            proximity = 1.0 - np.clip(threat_distance / self.threat_radius, 0.0, 1.0)
+            self.last_threat_distance = threat_distance
+        else:
+            # Nothing dangerous nearby right now — no shaping delta,
+            # and reset the tracker so re-entering danger next step
+            # doesn't get scored against a stale close distance.
+            threat_shaping = 0.0
+            proximity = 0.0
+            self.last_threat_distance = self.threat_radius
 
-        time_penalty = -0.002
+        threat_reward = (
+            self.w_threat_shaping * threat_shaping - self.w_threat_proximity * proximity
+        )
 
+        # ==========================================================
+        # DAMAGE / KILLS / DEATH
+        # ==========================================================
+        current_health = float(ship.life)
+        damage_taken = max(0.0, self.last_health - current_health)
+        damage_penalty = -self.w_damage_taken * damage_taken
+
+        damage_dealt = getattr(ship, "damage_score", 0.0) - self.last_damage_score
+        damage_reward = self.w_damage_dealt * damage_dealt
+        self.last_damage_score = getattr(ship, "damage_score", 0.0)
+
+        kills = getattr(ship, "killScore", 0) - self.last_kill_score
+        kill_reward = self.w_kill * max(0, kills)
+        self.last_kill_score = getattr(ship, "killScore", 0)
+
+        win_reward = self.w_win if len(EnemyManager.ships) < 1 else 0.0
+        death_penalty = -self.w_death if current_health <= 0 else 0.0
+
+        # ==========================================================
+        # TIME
+        # ==========================================================
         timeout_penalty = (
-            -5.0
+            -self.timeout_penalty
             if self.current_step >= self.max_episode_steps
             else 0.0
         )
 
-        death_penalty = -10.0 if current_health <= 0 else 0.0
-
         # ==========================================================
-        # Final reward
+        # FINAL
         # ==========================================================
-
         reward = (
-            4.0 * progress
-            + 1.5 * alignment
+            engagement_reward
+            + target_reward
+            + threat_reward
             + damage_reward
             + kill_reward
-            + target_reward
+            + win_reward
             + damage_penalty
-            + living_reward
-            + time_penalty
-            + timeout_penalty
             + death_penalty
+            + self.living_reward
+            - self.time_penalty
+            + timeout_penalty
         )
 
         self.last_distance = distance
         self.last_health = current_health
 
         return reward, distance, alignment
+
     # =============================================================
     # RENDER
     # =============================================================

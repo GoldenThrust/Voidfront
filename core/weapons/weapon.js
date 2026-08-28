@@ -1,12 +1,9 @@
 import Ship from "../player/ships/ship.js";
 import { isSeperatingAxes } from "../utils/collision.js";
-import { clamp } from "../utils/math.js";
 import { createVerticesPath, drawVerticesPath, tranformVertices } from "../utils/vertices.js";
 import { ctx } from "../world/canvas.js";
-import Asteroid from "../world/object/asteroid/asteroid.js";
 import { spatial } from "../world/spatialHash.js";
-import { drawWrapped, toroidalDistance, worldToScreen, wrap } from "../world/utils.js";
-import { world } from "../world/world.js";
+import { drawWrapped, toroidalDistance, worldToScreen } from "../world/utils.js";
 import WeaponManager from "./manager.js";
 
 import { shapes } from "./shapes.js";
@@ -76,7 +73,7 @@ export default class Weapon {
     }
 
     static nearBy(weapon, vertices, x, y) {
-        const object = spatial.query(x, y, Math.ceil(weapon.height / spatial.cellSize) + 1);
+        const object = spatial.query(x, y, Math.ceil(weapon.height) + 1);
 
 
         for (const element of object) {
@@ -107,6 +104,38 @@ export default class Weapon {
         }
     }
 
+    getNearPlayers(radius) {
+        const objects = spatial.query(this.x, this.y, Math.ceil(radius) + 1);
+
+        const players = [];
+
+        for (const obj of objects) {
+            if (obj instanceof Ship && obj !== this.ship) {
+                const dist = toroidalDistance(this.x, this.y, obj.x, obj.y);
+                if (dist <= radius) {
+                    players.push(obj);
+                }
+            }
+        }
+        return players;
+    }
+
+    getNearWeapons(radius) {
+        const objects = spatial.query(this.x, this.y, Math.ceil(radius) + 1);
+
+        const weapons = [];
+
+        for (const obj of objects) {
+            if (obj instanceof Weapon && obj !== this) {
+                const dist = toroidalDistance(this.x, this.y, obj.x, obj.y);
+                if (dist <= radius) {
+                    weapons.push(obj);
+                }
+            }
+        }
+        return weapons;
+    }
+
 
     colliding() {
         Weapon.nearBy(this, this.getVertices(), this.x, this.y);
@@ -114,5 +143,5 @@ export default class Weapon {
 
     colide() { }
     travelEnd() { }
-    closeObject(obj) { }
+    closeObject() { }
 }

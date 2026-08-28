@@ -1,6 +1,4 @@
-import { worldSize } from "../utils/constants.js";
 import { randomNum } from "../utils/random.js";
-import { wrap } from "../world/utils.js";
 import Projectile from "./projectile.js";
 import Minature from "./minature.js";
 import WeaponManager from "./manager.js";

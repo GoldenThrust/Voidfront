@@ -17,7 +17,7 @@ class FleetDrone(EnemyShip):
             width=40,
             height=40,
             angle=angle,
-            acceleration=250,
+            acceleration=650,
             color="springgreen",
             vertices=shapes[1],
             name="Fleet Drone",

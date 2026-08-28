@@ -17,7 +17,7 @@ class Sniper(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=600,
+            acceleration=1200,
             color="red",
             vertices=shapes[3],
             name="Sniper",

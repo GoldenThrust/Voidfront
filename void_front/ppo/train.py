@@ -2,18 +2,24 @@ import os
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback
 from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor, VecNormalize
+from stable_baselines3.common.vec_env import SubprocVecEnv, VecFrameStack, VecMonitor, VecNormalize
+import torch
 
 from environment import VoidFrontEnv
 from tensorboard_logger import TensorBoardRecorderCallback
 
 # Import your custom environment class
+# torch.set_num_threads(2)
 
+def linear_schedule(initial_value):
+    def func(progress_remaining):
+        return progress_remaining * initial_value
+    return func
 
 def make_env():
     """Factory function to instantiate the custom environment."""
     return VoidFrontEnv(
-        render_mode="human",
+        render_mode=None
         # render_mode="rgb_array",
     )
 
@@ -46,31 +52,45 @@ def trainPPO():
         seed=SEED,
     )
 
-    # train_env = VecMonitor(train_env)  # Wraps env to log episodic rewards and length
+    train_env = VecMonitor(train_env)  # Wraps env to log episodic rewards and length
 
     train_env = VecNormalize(
         train_env,
         norm_obs=True,
         norm_reward=True,
         clip_obs=10.0,
+        clip_reward=10.0
     )
+    
+    train_env = VecFrameStack(
+    train_env,
+    n_stack=4,
+)
+
 
     # Separate single evaluation environment
     eval_env = make_vec_env(make_env, n_envs=1, seed=SEED + 1)
-    # eval_env = VecMonitor(eval_env)
+    eval_env = VecMonitor(eval_env)
     eval_env = VecNormalize(
         eval_env,
         training=False,
         norm_obs=True,
         norm_reward=False,
+        
     )
+    
+    eval_env = VecFrameStack(
+    eval_env,
+    n_stack=4,
+)
+    eval_env.obs_rms = train_env.obs_rms
 
     # -------------------------------------------------------------------------
     # 3. CALLBACKS (Checkpointing & Best Model Tracking)
     # -------------------------------------------------------------------------
     # Save periodic checkpoints every N timesteps
     checkpoint_callback = CheckpointCallback(
-        save_freq=max(10_000 // NUM_ENVS, 1),
+        save_freq=max(1_000_000 // NUM_ENVS, 1),
         save_path=model_dir,
         name_prefix="ppo_navigation",
         save_replay_buffer=False,
@@ -81,7 +101,7 @@ def trainPPO():
         eval_env,
         best_model_save_path=best_model_dir,
         log_path=log_dir,
-        eval_freq=max(20_000 // NUM_ENVS, 1),
+        eval_freq=max(1_000_000 // NUM_ENVS, 1),
         n_eval_episodes=10,
         deterministic=True,
         render=False,
@@ -101,33 +121,44 @@ def trainPPO():
     # )
     policy_kwargs = dict(
         net_arch=dict(
-            pi=[256, 256, 256],  # Actor (policy) network layers
-            vf=[256, 256, 256],  # Critic (value function) network layers
+            pi=[512, 512, 256],  # Actor (policy) network layers
+            vf=[512, 512, 256],  # Critic (value function) network layers
         )
     )
+    
+    model_path = f"{final_model_dir}/final_navigation.zip"
 
-    model = PPO(
-        policy="MultiInputPolicy",  # Supports Gym Dict observation spaces
-        env=train_env,
-        # learning_rate=1e-3,
-        learning_rate=3e-4,
-        n_steps=4096,  # Steps per env before updating policy
-        batch_size=256,
-        n_epochs=10,
-        gamma=0.99,  # Discount factor
-        gae_lambda=0.95,  # Generalized Advantage Estimation parameter
-        clip_range=0.2,  # PPO clipping ratio
-        ent_coef=0.01,  # Entropy coefficient for exploration
-        policy_kwargs=policy_kwargs,
-        tensorboard_log=log_dir,
-        verbose=1,
-        device="auto",  # "cuda" or "cpu" or "auto"
-    )
+    if os.path.exists(model_path):
+        model = PPO.load(
+            model_path,
+            env=train_env,
+            device="auto",
+        )
+    else:
+        model = PPO(
+            policy="MultiInputPolicy",  # Supports Gym Dict observation spaces
+            env=train_env,
+            # learning_rate=1e-3,
+            learning_rate=linear_schedule(3e-4),
+            n_steps=2048,  # Steps per env before updating policy
+            batch_size=512,
+            n_epochs=10,
+            gamma=0.995,  # Discount factor
+            gae_lambda=0.95,  # Generalized Advantage Estimation parameter
+            clip_range=0.2,  # PPO clipping ratio
+            ent_coef=0.005,  # Entropy coefficient for exploration
+            vf_coef=0.5,  # Value function loss coefficient
+            max_grad_norm=0.5,  # Gradient clipping
+            policy_kwargs=policy_kwargs,
+            tensorboard_log=log_dir,
+            verbose=1,
+            device="auto",  # "cuda" or "cpu" or "auto"
+        )
 
     # -------------------------------------------------------------------------
     # 5. RUN TRAINING
     # -------------------------------------------------------------------------
-    TOTAL_TIMESTEPS = 500_000
+    TOTAL_TIMESTEPS = 100_000_000
     # TOTAL_TIMESTEPS = 30_000
 
     print(

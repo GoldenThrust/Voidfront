@@ -3,6 +3,6 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 
-sizeOf = SimpleNamespace(ship=1, star=10, asteroid=10)
-worldSize = SimpleNamespace(width=1920, height=1080)
+sizeOf = SimpleNamespace(ship=100, star=1, asteroid=1000)
+worldSize = SimpleNamespace(width=100_000, height=100_000)
 FIXED_DT = 1 / 240

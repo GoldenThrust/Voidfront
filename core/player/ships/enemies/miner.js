@@ -9,7 +9,7 @@ import EnemyShip from "./enemy.js";
 
 export default class Miner extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 1000, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 100, life: 300, weapon: Mine, img: assets?.images?.minership, flameImg: assets?.images?.flame4 });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 1500, color: "azure", vertices: shapes[5], name: "Miner Drone", maxWeaponHeat: 100, life: 300, weapon: Mine, img: assets?.images?.minership, flameImg: assets?.images?.flame4 });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

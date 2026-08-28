@@ -6,12 +6,13 @@ from game.core.utils.constants import FIXED_DT
 from game.core.utils.math import clamp
 from game.core.utils.vertices import createVerticesPath, tranformVertices
 from game.core.weapons.manager import WeaponManager, weaponManager
-from game.core.world.canvas import blit_image, draw_line, draw_polygon, draw_text
-from game.core.world.utils import worldToScreen
+from game.core.world.canvas import blit_image, draw_line, draw_polygon
+from game.core.world.utils import lerp, worldToScreen
 from game.core.world.world import world
 import numpy as np
 
-from utils import wrap
+from game.core.world.utils import lerp, toroidalDirection, toroidalDistance, wrap
+from game.core.world.spatial_hash import spatial
 
 
 destroyedShips: list = []
@@ -49,7 +50,7 @@ class Ship:
         self.maxHeat = maxWeaponHeat
         self.weaponState = "cool"
         self.maxSpeed = (self.dampSpeed * self.acceleration * FIXED_DT) / (1 - self.dampSpeed)
-        print(f"Ship {self.name} initialized with maxSpeed: {self.maxSpeed:.2f}, acceleration: {self.acceleration}, dampSpeed: {self.dampSpeed}, maxHeat: {self.maxHeat}")
+        self.speed_factor = np.sqrt(self.speed / self.maxSpeed) if self.maxSpeed else 0
         
     def render(self):
         if self.img is not None:
@@ -81,7 +82,7 @@ class Ship:
         steering = turn
         thrusting = thrust if getattr(self, "state", None) == "AI" else 1
         external_control = self.controllable and (thrust != 0 or turn != 0)
-
+        self.speed_factor = np.sqrt(self.speed / self.maxSpeed) if self.maxSpeed else 0
         if self.controllable:
             if external_control:
                 steering = turn
@@ -107,8 +108,7 @@ class Ship:
         elif getattr(self, "state", None) == "AI":
             self.speed = max(self.speed + thrusting * self.acceleration * dt, 0)
 
-        speed_factor = (self.speed / self.maxSpeed) ** 0.5 if self.maxSpeed else 0
-        self.angle = wrap(self.angle + (steering * self.turnRate * speed_factor * FIXED_DT), 6.283185307179586)
+        self.angle = wrap(self.angle + (steering * self.turnRate * self.speed_factor * FIXED_DT), 6.283185307179586)
         self.speed = max(self.speed * self.dampSpeed, 0)
         self.x = wrap(self.x + np.sin(self.angle) * (self.speed * dt), world.width)
         self.y = wrap(self.y - np.cos(self.angle) * (self.speed * dt), world.height)
@@ -121,16 +121,14 @@ class Ship:
             self.weaponState = "cool"
 
     def randomMotion(self, t, dt, fire=True):
-        speed_factor = np.sqrt(self.speed / self.maxSpeed) if self.maxSpeed else 0
         self.speed = self.speed + (self.acceleration * dt)
         if not self.lastTime:
             self.lastTime = t
         if t - self.lastTime > np.random.uniform(0.1, 2):
             prev_angle = self.angle
-            self.angle = wrap(self.angle + (np.random.choice([-self.turnRate, self.turnRate]) * speed_factor * FIXED_DT), np.pi * 2)
+            self.angle = wrap(self.angle + (np.random.choice([-self.turnRate, self.turnRate]) * self.speed_factor * FIXED_DT), np.pi * 2)
             self.lastTime = t
             
-            print(f"Ship {self.name} changed angle from {prev_angle:.2f} to {self.angle:.2f} at time {t:.2f}")
         if fire and t - self.lastTime > np.random.uniform(1, 3):
             self.fire()
             
@@ -174,3 +172,87 @@ class Ship:
 
     def set_weapon(self, idx):
         WeaponManager.changeWeapon(idx)
+        
+    def getNearestWeapon(self):
+        from game.core.weapons.weapon import Weapon
+        
+        object_list = spatial.query(
+            self.x, self.y, np.ceil(self.height / spatial.cellSize) + 1
+        )
+        nearest_weapon = None
+        nearest_distance = float("inf")
+        for weapon in object_list:
+            if isinstance(weapon, Weapon) and weapon.ship is not self:
+                dist = toroidalDistance(weapon.x, weapon.y, self.x, self.y)
+                if dist < nearest_distance:
+                    nearest_distance = dist
+                    nearest_weapon = weapon
+        return nearest_weapon
+
+    def getNearestEnemy(self):
+        object_list = spatial.query(
+            self.x, self.y, np.ceil(self.height / spatial.cellSize) + 1
+        )
+        nearest_enemy = None
+        nearest_distance = float("inf")
+        for obj in object_list:
+            if isinstance(obj, Ship) and obj is not self:
+                dist = toroidalDistance(obj.x, obj.y, self.x, self.y)
+                if dist < nearest_distance:
+                    nearest_distance = dist
+                    nearest_enemy = obj
+        return nearest_enemy
+    
+        
+    def getNearWeapons(self, radius):
+        from game.core.weapons.weapon import Weapon
+        
+        object_list = spatial.query(
+            self.x, self.y, np.ceil(radius) + 1
+        )
+
+        weapons = []
+        for weapon in object_list:
+            if isinstance(weapon, Weapon) and weapon.ship is not self:
+                dist = toroidalDistance(weapon.x, weapon.y, self.x, self.y)
+                if dist <= radius:
+                    weapons.append(weapon)
+        return weapons
+    
+    def getNearPlayers(self, radius):
+        object_list = spatial.query(
+            self.x, self.y, np.ceil(radius) + 1
+        )
+
+        players = []
+        for obj in object_list:
+            if isinstance(obj, Ship) and obj is not self:
+                dist = toroidalDistance(obj.x, obj.y, self.x, self.y)
+                if dist <= radius:
+                    players.append(obj)
+        return players    
+    
+    def closeWeapon(self, weapon, dist, alpha):
+        if dist > 7**7:
+            return
+        if abs(alpha - np.pi / 2) < np.pi / 16:
+            self.fire()
+        beta = alpha + np.pi / 2
+        delta = np.atan2(np.sin(beta), np.cos(beta))
+        self.angle = wrap(lerp(self.angle, self.angle - clamp(delta, self.turnRate) * FIXED_DT * self.speed_factor, 0.3), np.pi * 2)
+
+    def nearByWeapon(self):
+        from game.core.weapons.weapon import Weapon
+        
+        object_list = spatial.query(
+            self.x, self.y, np.ceil(self.height / spatial.cellSize) + 1
+        )
+        for weapon in object_list:
+            if isinstance(weapon, Weapon) and weapon.ship is not self:
+                dist = toroidalDistance(weapon.x, weapon.y, self.x, self.y)
+                if dist > 8**8:
+                    continue
+                alpha = toroidalDirection(
+                    weapon.x, weapon.y, self.x, self.y, self.angle
+                )
+                self.closeWeapon(weapon, dist, alpha)

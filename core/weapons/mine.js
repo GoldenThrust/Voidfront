@@ -29,7 +29,7 @@ export default class Mine extends Weapon {
         this.duration = 1000;
     }
 
-    update(dt) {
+    update() {
         this.colliding();
 
         if (!(--this.duration)) {

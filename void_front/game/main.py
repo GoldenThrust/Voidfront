@@ -9,6 +9,7 @@ from game.core.utils.constants import FIXED_DT
 from game.core.world.canvas import clear, draw_text, get_screen, present
 from game.core.world.spatial_hash import spatial
 from game.core.world.world import world
+from game.core.weapons.manager import WeaponManager
 
 _last_time = None
 _time_accumulator = 0.0
@@ -19,6 +20,7 @@ def init() -> None:
     build_assets()
     player.PlayerShip.spawn(world.x, world.y)
     EnemyManager.init()
+    WeaponManager.init()
     world.attach(player.ship)
 
 

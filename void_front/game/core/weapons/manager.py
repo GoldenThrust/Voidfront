@@ -36,7 +36,7 @@ class WeaponManager:
         keybinds["e"] = self.nextWeapon
 
     @staticmethod
-    def _getWeaponTypes():
+    def init():
         from game.core.weapons.pulse_canon import PulseCanon
         from game.core.weapons.gatling_gun import GatlingGun
         from game.core.weapons.heavy_rail_gun import HeavyRailGun
@@ -52,6 +52,9 @@ class WeaponManager:
             HomingMissile,
             Mine,
         ]
+    
+    @staticmethod
+    def _getWeaponTypes():
         return WeaponManager.weaponTypes
 
     def nextWeapon(self):

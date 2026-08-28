@@ -17,7 +17,7 @@ class Bomber(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=300,
+            acceleration=900,
             color="blue",
             vertices=shapes[4],
             name="Bomber Drone",

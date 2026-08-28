@@ -17,7 +17,7 @@ class MissileLaucher(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=400,
+            acceleration=800,
             color="gold",
             vertices=shapes[6],
             name="Missile Laucher",

@@ -54,7 +54,7 @@ class Weapon:
 
     @staticmethod
     def nearBy(weapon, vertices, x, y):
-        object_list = spatial.query(x, y, np.ceil(weapon.height / spatial.cellSize) + 1)
+        object_list = spatial.query(x, y, np.ceil(weapon.height) + 1)
         for element in object_list:
             if isinstance(element, Ship) and (weapon.ship == element or getattr(element, "state", None) == "dead"):
                 continue

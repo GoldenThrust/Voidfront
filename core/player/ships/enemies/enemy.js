@@ -36,10 +36,6 @@ export default class EnemyShip extends Ship {
         return delta;
     }
 
-    // respond to close Weapon
-    // alpha: weapon face ship
-    // beta: weapon back ship
-    // dist: dist from ship
     closeWeapon(weapon, dist, alpha) {
         if (dist > 7 ** 7) return;
         if (Math.abs(alpha - Math.PI / 2) < Math.PI / 16) {

@@ -3,7 +3,6 @@ import { randomNum } from "../../../utils/random.js";
 import { world } from "../../../world/world.js";
 import Explosion, { explosions } from "../../prop/explosion.js";
 import { destroyedShips } from "../ship.js";
-import AI from "./AI.js";
 import Bomber from "./bomber.js";
 import FleetDrone from "./fleet.js";
 import Miner from "./miner.js";

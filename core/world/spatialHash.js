@@ -1,5 +1,5 @@
 import { ctx } from "./canvas.js";
-import { toroidalDelta, toroidalDistance, worldToScreen, wrap } from "./utils.js";
+import { worldToScreen, wrap } from "./utils.js";
 import { world } from "./world.js";
 
 class SpatialHash {
@@ -116,7 +116,7 @@ class SpatialHash {
     renderActiveCells() {
         const cellSize = this.cellSize;
 
-        for (const [key, bucket] of this.map) {
+        for (const [key] of this.map) {
 
             const [cx, cy] = key.split(":").map(Number);
 

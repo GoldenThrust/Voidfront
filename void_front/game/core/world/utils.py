@@ -10,6 +10,8 @@ from game.core.world.world import world
 def wrap(value, size):
     return ((value % size) + size) % size
 
+def lerp(a, b, t):
+    return a + (b - a) * t
 
 def toroidalDelta(a, b, size):
     d = (b - a) % size
@@ -32,7 +34,7 @@ def toroidalAngle(x1, y1, x2, y2, space=world):
     return math.atan2(dy, dx)
 
 
-def toroidalDirection(x1, y1, x2, y2, angle, offset=0, space=world):
+def toroidalDirection(x1, y1, x2, y2, angle, offset=0):
     target_angle = toroidalAngle(x1, y1, x2, y2, world)
     diff = (target_angle + angle) + offset
     return math.atan2(math.sin(diff), math.cos(diff))
@@ -41,7 +43,7 @@ def toroidalDirection(x1, y1, x2, y2, angle, offset=0, space=world):
 def worldToScreen(wx, wy, space=world):
     dx = toroidalDelta(space.x, wx, space.width)
     dy = toroidalDelta(space.y, wy, space.height)
-    return {"x": dx + space.width / 2, "y": dy + space.height / 2}
+    return {"x": dx + canvas.width / 2, "y": dy + canvas.height / 2}
 
 
 def inScreen(*, x, y, space=world, screen=canvas, margin=None):

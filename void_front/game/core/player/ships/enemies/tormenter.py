@@ -17,7 +17,7 @@ class Tormenter(EnemyShip):
             width=50,
             height=40,
             angle=angle,
-            acceleration=300,
+            acceleration=1300,
             color="pink",
             vertices=shapes[2],
             name="Tormenter Drone",

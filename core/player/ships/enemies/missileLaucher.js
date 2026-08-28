@@ -1,15 +1,13 @@
 import { assets } from "../../../assets/main.js";
-import { clamp } from "../../../utils/math.js";
 import HomingMissile from "../../../weapons/HomingMissile.js";
-import { canvas } from "../../../world/canvas.js";
-import { toroidalAngle, toroidalDistance, updateWrapped } from "../../../world/utils.js";
+import { toroidalDistance, updateWrapped } from "../../../world/utils.js";
 import { ship } from "../player.js";
 import { shapes } from "../shapes.js";
 import EnemyShip from "./enemy.js";
 
 export default class MissileLaucher extends EnemyShip {
     constructor({ x = 10, y = 20, angle = 0 }) {
-        super({ x, y, width: 50, height: 50, angle, acceleration: 700, color: "gold", vertices: shapes[6], name: "Missile Laucher", maxWeaponHeat: 3000, life: 150, weapon: HomingMissile, img: assets?.images?.missilelauchership, flameImg: assets?.images?.flame5 });
+        super({ x, y, width: 50, height: 50, angle, acceleration: 800, color: "gold", vertices: shapes[6], name: "Missile Laucher", maxWeaponHeat: 3000, life: 150, weapon: HomingMissile, img: assets?.images?.missilelauchership, flameImg: assets?.images?.flame5 });
         this.seekAcceleration = this.acceleration;
         this.fleeAcceleration = this.acceleration * 0.9;
     }

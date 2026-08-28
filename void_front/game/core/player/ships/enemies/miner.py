@@ -6,9 +6,10 @@ from game.core.player.ships import player
 from game.core.player.ships.shapes import shapes
 from game.core.utils.math import clamp
 from game.core.weapons.mine import Mine
-from game.core.world.utils import toroidalDistance, updateWrapped
+from game.core.world.utils import lerp, toroidalDistance, updateWrapped, wrap
 import numpy as np
 
+from game.core.utils.constants import FIXED_DT
 
 class Miner(EnemyShip):
     def __init__(self, x=10, y=20, angle=0):
@@ -18,7 +19,7 @@ class Miner(EnemyShip):
             width=50,
             height=50,
             angle=angle,
-            acceleration=500,
+            acceleration=1500,
             color="azure",
             vertices=shapes[5],
             name="Miner Drone",
@@ -37,7 +38,8 @@ class Miner(EnemyShip):
         if abs(alpha + np.pi / 2) < np.pi / 8:
             self.fire()
         beta = alpha + np.pi / 2
-        self.angle -= clamp(beta, self.turnRate)
+        delta = np.atan2(np.sin(beta), np.cos(beta))
+        self.angle = wrap(lerp(self.angle, self.angle - clamp(delta, self.turnRate) * FIXED_DT * self.speed_factor, 0.3), np.pi * 2)
 
     def update(self, t, dt, thrust=0, turn=0):
         updateWrapped(
