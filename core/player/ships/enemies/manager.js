@@ -3,6 +3,7 @@ import { randomNum } from "../../../utils/random.js";
 import { world } from "../../../world/world.js";
 import Explosion, { explosions } from "../../prop/explosion.js";
 import { destroyedShips } from "../ship.js";
+import AI from "./AI.js";
 import Bomber from "./bomber.js";
 import FleetDrone from "./fleet.js";
 import Miner from "./miner.js";
@@ -12,8 +13,8 @@ import Tormenter from "./tormenter.js";
 
 export default class EnemyManager {
     static ships = [];
-    // static types = [Sniper];
-    static types = [FleetDrone, Tormenter, Sniper, Bomber, Miner, MissileLaucher];
+    static types = [AI];
+    // static types = [FleetDrone, Tormenter, Sniper, Bomber, Miner, MissileLaucher];
 
     static init() {
         for (let i = 0; i < sizeOf.ship; i++) {

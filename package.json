@@ -1,0 +1,31 @@
+{
+  "name": "void-front",
+  "version": "1.0.0",
+  "description": "> An infinite looping space world built with HTML Canvas 2D - drifting ships, animated stars, asteroids, smooth trails, and a minimap. Strangely relaxing to watch.",
+  "type": "module",
+  "main": "main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "pack": "webpack",
+    "watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoldenThrust/Voidfront.git"
+  },
+  "author": "Adeniji Olajide",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GoldenThrust/Voidfront/issues"
+  },
+  "homepage": "https://github.com/GoldenThrust/Voidfront#readme",
+  "devDependencies": {
+    "webpack": "^5.109.2",
+    "webpack-cli": "^7.2.2"
+  },
+  "dependencies": {
+    "onnxruntime-web": "^1.27.0"
+  }
+}

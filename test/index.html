@@ -3,13 +3,88 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>VoidFront</title>
-    <script type="module" src="main.js"></script>
+    <title>Sci-Fi Spaceship Engine Synthesizer</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: sans-serif;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 80px0px;
+            margin: 30px auto;
+        }
+
+        button {
+            background: #1e293b;
+            color: #38bdf8;
+            border: 2px solid #38bdf8;
+            padding: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #38bdf8;
+            color: #0f172a;
+        }
+
+        .stop-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            grid-column: span 4;
+            margin-top: 10px;
+        }
+
+        .stop-btn:hover {
+            background: #dc2626;
+            color: white;
+        }
+    </style>
+
+    <script src="./graph.js" defer></script>
+    <script src="./main.js" defer></script>
 </head>
 
 <body>
-    <canvas></canvas>
+
+    <h1>Spaceship Fleet Engine Deck</h1>
+    <p>Select a spaceship model below to trigger real-time synthesized engine loops.</p>
+
+    <div class="grid">
+        <button onclick="engine.start('alienScout')">Alien Scout</button>
+        <button onclick="engine.start('heavyDreadnought')">Heavy Dreadnought</button>
+        <button onclick="engine.start('plasmaFighter')">Plasma Fighter</button>
+        <button onclick="engine.start('cargoHauler')">Cargo Hauler</button>
+        <button onclick="engine.start('warpCruiser')">Warp Cruiser</button>
+        <button onclick="engine.start('steampunkRocket')">Steampunk Rocket</button>
+        <button onclick="engine.start('cyberDrone')">Cyber Drone</button>
+        <button onclick="engine.start('quantumExplorer')">Quantum Explorer</button>
+        <button class="stop-btn" onclick="engine.stop()">Kill Engines</button>
+
+        <h2 style="margin-top:40px;">Weapons System Activation</h2>
+        <div class="grid" style="border-top: 1px solid #334155; padding-top: 20px;">
+            <button onclick="weapons.fire('gun')">Standard Gun</button>
+            <button onclick="weapons.fire('gatling')">Gatling Loop</button>
+            <button onclick="weapons.fire('pulseCannon')">Pulse Cannon</button>
+            <button onclick="weapons.fire('plasmaCannon')">Plasma Cannon</button>
+            <button onclick="weapons.fire('heavyRailGun')">Heavy Railgun</button>
+            <button onclick="weapons.fire('hommingMissile')">Launch Missile</button>
+            <button class="stop-btn" style="grid-column: span 1; background:#eab308; color:black;"
+                onclick="weapons.stopMissile(); weapons.fire('explosion');">Impact Detonation</button>
+            <button onclick="weapons.fire('mine')">Drop Proximity Mine</button>
+            <button onclick="weapons.fire('explosion')">Flak Explosion</button>
+        </div>
+    </div>
 </body>
+
 </html>

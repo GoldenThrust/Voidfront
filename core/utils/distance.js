@@ -1,3 +1,8 @@
+import { spatial } from "../world/spatialHash.js";
+import { toroidalDirection, toroidalDistance } from "../world/utils.js";
+import EnemyShip from "../player/ships/enemies/enemy.js";
+import Ship from "../player/ships/ship.js";
+
 function circleDistanceSq(a, b) {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
@@ -51,4 +56,15 @@ export function distance(a, b) {
 
 export function withinRange(a, b, dist) {
   return distance(a, b) < dist * dist;
+}
+
+
+export function nearByEnemy(self, callback = () => { }) {
+  const object = spatial.query(sh.x, self.y, 1000);
+
+  for (const ship of object) {
+    if (ship instanceof Ship && ship !== self) {
+      callback(ship);
+    }
+  }
 }

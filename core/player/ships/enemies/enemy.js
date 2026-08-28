@@ -7,7 +7,7 @@ import Ship from "../ship.js";
 import EnemyManager from "./manager.js";
 
 export default class EnemyShip extends Ship {
-    constructor({ x, y, width, height, angle, acceleration, turnRate, life, vertices, color, name, controllable, weapon, maxWeaponHeat, state = "idle", img, flameImg }) {
+    constructor({ x, y, width, height, angle, acceleration, turnRate = 2, life, vertices, color, name, controllable, weapon, maxWeaponHeat, state = "idle", img, flameImg }) {
         super({ x, y, width, height, angle, acceleration, weapon, turnRate, life, vertices, color, name, controllable, maxWeaponHeat, img, flameImg })
         this.state = state;
         this.seekAcceleration = this.acceleration;
@@ -28,7 +28,7 @@ export default class EnemyShip extends Ship {
 
         const diff = toroidalDirection(obj.x, obj.y, this.x, this.y, this.angle, tangent);
 
-        this.angle -= clamp(diff, (this.speed * this.turnRate));
+        this.angle -= clamp(diff, this.turnRate);
 
         return diff;
     }
@@ -45,7 +45,7 @@ export default class EnemyShip extends Ship {
 
         const beta = alpha + Math.PI / 2;
 
-        this.angle -= clamp(beta, (this.speed * this.turnRate * 0.5));
+        this.angle -= clamp(beta, this.turnRate * 0.5);
     }
 
     nearByWeapon() {
@@ -63,11 +63,13 @@ export default class EnemyShip extends Ship {
         }
     }
 
-    update(t, dt) {
-        super.update(t, dt);
-        this.speed = this.speed + (this.acceleration * dt);
+    update(t, dt, thrust = 0, turn = 0) {
+        super.update(t, dt, thrust, turn);
+        if (this.state !== "AI") {
+            this.speed = this.speed + (this.acceleration * dt);
 
-        this.nearByWeapon();
+            this.nearByWeapon();
+        }
     }
 
     AI({ idleDistance, fleeCondition, seekCondition, fireCondition, }) {

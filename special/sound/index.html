@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Web Audio Analyzer</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: Arial;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        canvas {
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #444;
+            background: black;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 30px;
+            font-size: 18px;
+
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- <h2>Web Audio Analyzer</h2> -->
+
+    <button id="start">Start Microphone</button>
+
+    <canvas id="wave" width="900" height="250"></canvas>
+
+    <!-- <p>WAVEFORM</p> -->
+
+    <canvas id="freq" width="900" height="250"></canvas>
+
+    <!-- <p>FREQUENCY</p>////// -->
+
+    <script src="graph.js"></script>
+
+    <script>
+        const waveCanvas = document.getElementById("wave");
+        const waveCtx = waveCanvas.getContext("2d");
+
+        const freqCanvas = document.getElementById("freq");
+        const freqCtx = freqCanvas.getContext("2d");
+
+        document.getElementById("start").onclick = async () => {
+
+            // const stream = await navigator.mediaDevices.getUserMedia({
+            //     audio: true
+            // });
+
+            const audioCtx = new AudioContext();
+
+            const analyser = audioCtx.createAnalyser();
+
+            analyser.fftSize = 2048;
+
+            analyser.smoothingTimeConstant = 0.8;
+
+            // const source = audioCtx.createMediaStreamSource(stream);
+            const source = audioCtx.createOscillator();
+
+            const gainNode = audioCtx.createGain();
+
+            source.type = "sine";
+            source.frequency.value = 440;
+            source.start();
+
+            source.connect(analyser);
+
+            analyser.connect(audioCtx.destination);
+
+            const waveform = new Uint8Array(analyser.fftSize);
+
+            const spectrum = new Uint8Array(analyser.frequencyBinCount);
+
+            function draw() {
+
+                requestAnimationFrame(draw);
+
+                analyser.getByteTimeDomainData(waveform);
+
+                analyser.getByteFrequencyData(spectrum);
+
+                drawWaveform();
+                drawSpectrum();
+            }
+
+            draw();
+
+            function drawWaveform() {
+
+                waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+
+                waveCtx.lineWidth = 2;
+                waveCtx.strokeStyle = "#00ff99";
+
+                waveCtx.beginPath();
+
+                const slice = waveCanvas.width / waveform.length;
+
+                let x = 0;
+
+                for (let i = 0; i < waveform.length; i++) {
+
+                    const y = (waveform[i] / 255) * waveCanvas.height;
+
+                    if (i === 0)
+                        waveCtx.moveTo(x, y);
+                    else
+                        waveCtx.lineTo(x, y);
+
+                    x += slice;
+                }
+
+                waveCtx.stroke();
+            }
+
+            function drawSpectrum() {
+
+                freqCtx.clearRect(0, 0, freqCanvas.width, freqCanvas.height);
+
+                const barWidth = freqCanvas.width / spectrum.length;
+
+                for (let i = 0; i < spectrum.length; i++) {
+
+                    const value = spectrum[i];
+
+                    const height = value / 255 * freqCanvas.height;
+
+                    freqCtx.fillStyle =
+                        `hsl(${240 - value},100%,50%)`;
+
+                    freqCtx.fillRect(
+                        i * barWidth,
+                        freqCanvas.height - height,
+                        barWidth,
+                        height
+                    );
+                }
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

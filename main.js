@@ -18,9 +18,13 @@ import Projectile from "./core/weapons/projectile.js";
 import { spatial } from "./core/world/spatialHash.js";
 import Minature from "./core/weapons/minature.js";
 import { assets, buildAssets } from "./core/assets/main.js";
+import { loadModel, runAI } from "./core/ai/init.js"
+import { FIXED_DT } from "./core/utils/constants.js";
 
 async function init() {
+    await loadModel();
     await buildAssets();
+
     console.log("Assets loaded", assets);
     await import("./core/world/manager.js");
 
@@ -34,7 +38,6 @@ async function init() {
 export let attachWorld = -1;
 let lastTime = performance.now();
 let timeAccumulator = 0;
-const FIXED_DT = 1 / 240;
 
 
 async function animate(t) {
@@ -59,6 +62,7 @@ async function animate(t) {
         WeaponManager.update(t, FIXED_DT)
         EnemyManager.update(t, FIXED_DT);
         ship.update(t, FIXED_DT);
+        runAI(t, FIXED_DT);
 
         for (const asteroid of asteroids) {
             asteroid.update(FIXED_DT);

@@ -22,7 +22,7 @@ export default class Miner extends EnemyShip {
 
         const beta = alpha + Math.PI / 2;
 
-        this.angle -= clamp(beta, (this.speed * this.turnRate));
+        this.angle -= clamp(beta, this.turnRate);
     }
 
     update(t, dt) {

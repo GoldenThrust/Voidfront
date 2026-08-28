@@ -6,7 +6,7 @@ import { randomNum } from "../../utils/random.js";
 import Trail from "../prop/trail.js";
 import { clamp, clampAngle } from "../../utils/math.js";
 import { keys } from "../../events/keys.js";
-import { sizeOf } from "../../utils/constants.js";
+import { FIXED_DT, sizeOf } from "../../utils/constants.js";
 
 import WeaponManager, { weaponManager } from "../../weapons/manager.js";
 import { spatial } from "../../world/spatialHash.js";
@@ -18,7 +18,7 @@ import PulseCanon from "../../weapons/pulse-canon.js";
 const WORLD_MARGIN = world.width / 200;
 
 export default class Ship {
-    constructor({ x, y, width, height, angle, img, flameImg, weapon = PulseCanon, acceleration = 100, turnRate = -1, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
+    constructor({ x, y, width, height, angle, img, flameImg, weapon = PulseCanon, acceleration = 3500, turnRate = 2, life = 100, vertices = shapes[0], color = "red", name = "Player", controllable = false, maxWeaponHeat = 10000 }) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -27,19 +27,20 @@ export default class Ship {
         this.height = height;
         this.angle = angle;
         this.color = color;
-        this.turnRate = turnRate === -1 ? (1 / (this.acceleration * 1000)) : turnRate;
+        this.turnRate = turnRate;
 
         this.name = name;
 
         this.img = img;
         this.flameImg = flameImg;
 
-        this.dampSpeed = 0.999;
+        this.dampSpeed = 0.75 ** (FIXED_DT);
+        this.dt = FIXED_DT;
+
 
         this.controllable = controllable;
 
         this.lastTime = 0;
-        this.trail = new Trail(Math.ceil(this.acceleration / 12), "white");
 
         this.weapon = weapon;
         this.killScore = 0;
@@ -55,6 +56,10 @@ export default class Ship {
         this.heat = 0;
         this.maxHeat = maxWeaponHeat;
         this.weaponState = "cool";
+        this.maxSpeed = (this.dampSpeed * acceleration * FIXED_DT) / (1 - this.dampSpeed);
+        console.log(this.maxSpeed, this.acceleration, this.dampSpeed, FIXED_DT)
+        this.trail = new Trail(Math.max(Math.ceil(this.maxSpeed / this.acceleration), 1), "white");
+        console.log("Trail created", this.trail.length)
     }
 
     render() {
@@ -94,38 +99,50 @@ export default class Ship {
         })
     }
 
-    update(t, dt) {
+    update(t, dt, thrust = 0, turn = 0) {
+        let steering = turn;
+        let thrusting = this.state === "AI" ? thrust : 1;
+
         if (this.controllable) {
             if (keys["ArrowLeft"]) {
                 // this.angle = wrap(this.angle + 0.01, Math.PI * 2);
-                this.angle = wrap(this.angle + this.speed * this.turnRate, Math.PI * 2);
+                steering = 1;
             }
 
             if (keys["ArrowRight"]) {
                 // this.angle = wrap(this.angle - 0.01, Math.PI * 2);
-                this.angle = wrap(this.angle - this.speed * this.turnRate, Math.PI * 2);
+                steering = -1;
             }
+
 
 
             if (keys["ArrowUp"]) {
-                this.speed = this.speed + (this.acceleration * dt);
+                this.speed += this.acceleration * dt;
             }
 
             if (keys["ArrowDown"]) {
-                this.speed = this.speed - (this.acceleration * dt);
+                this.speed -= this.acceleration * dt;
+                this.speed = Math.max(this.speed, 0);
             }
 
             if (keys[" "] || keys["Enter"] || keys["Space"]) {
                 this.fire();
             }
-        } else {
-            if (this.state === "idle") {
-                this.randomMotion(t, dt, this.name === "Player");
-            }
+        } else if (this.state === "idle") {
+            this.randomMotion(t, dt, this.name === "Player");
+        } else if (this.state === "AI") {
+            this.speed += thrusting * this.acceleration * dt;
+            this.speed = Math.max(this.speed, 0);
         }
 
+        const speed_factor = Math.sqrt(this.speed / this.maxSpeed);
+
+        this.angle = wrap(this.angle + (steering * this.turnRate * speed_factor * FIXED_DT), Math.PI * 2);
 
         this.speed = Math.max(this.speed * this.dampSpeed, 0);
+
+        if (this.state == "AI")
+            console.log("Ship update", this.name, "Thrust:", thrusting, "Turn:", steering, "Controllable:", this.controllable, "State:", this.state)
 
 
         // updateWrapped(() => {
@@ -149,18 +166,20 @@ export default class Ship {
     }
 
     randomMotion(t, dt, fire = true) {
+        const speed_factor = Math.sqrt(this.speed / this.maxSpeed);
+
         this.speed = this.speed + (this.acceleration * dt);
 
         if (t - this.lastTime > randomNum(0, 10000) || !this.lastTime) {
-            this.angle = wrap(this.angle + this.speed * randomNum(-this.turnRate, this.turnRate) * 20, Math.PI * 2);
+            this.angle = wrap(this.angle + (randomNum(-this.turnRate, this.turnRate) * speed_factor * FIXED_DT), Math.PI * 2);
             this.lastTime = t;
         } else if (t - this.lastTime > randomNum(0, 60000) || fire) {
             this.fire();
         }
 
-        if (t - this.lastTime > randomNum(0, 20000)) {
-            weaponManager.nextWeapon();
-        }
+        // if (t - this.lastTime > randomNum(0, 20000)) {
+        //     weaponManager.nextWeapon();
+        // }
     }
 
     canFire() {
